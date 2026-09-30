@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sharp Sheet — Picks</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  :root{
+    color-scheme: light;
+    --surface-1:   #fcfcfb;
+    --plane:       #f9f9f7;
+    --text-1:      #0b0b0b;
+    --text-2:      #52514e;
+    --muted:       #898781;
+    --grid:        #e1e0d9;
+    --border:      rgba(11,11,11,0.10);
+    --good:        #0ca30c;
+    --warning:     #fab219;
+    --serious:     #ec835a;
+    --critical:    #d03b3b;
+    --good-soft:   #e3f5e3;
+    --critical-soft:#fbe6e6;
+    --warning-soft:#fff4dc;
+    --muted-soft:  #eeede9;
+    --accent:      #2a78d6;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme: dark;
+      --surface-1:   #1a1a19;
+      --plane:       #0d0d0d;
+      --text-1:      #ffffff;
+      --text-2:      #c3c2b7;
+      --muted:       #898781;
+      --grid:        #2c2c2a;
+      --border:      rgba(255,255,255,0.10);
+      --good:        #0ca30c;
+      --warning:     #fab219;
+      --serious:     #ec835a;
+      --critical:    #e66767;
+      --good-soft:   #113511;
+      --critical-soft:#3a1717;
+      --warning-soft:#3a2e0d;
+      --muted-soft:  #232320;
+      --accent:      #3987e5;
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --surface-1:   #1a1a19;
+    --plane:       #0d0d0d;
+    --text-1:      #ffffff;
+    --text-2:      #c3c2b7;
+    --muted:       #898781;
+    --grid:        #2c2c2a;
+    --border:      rgba(255,255,255,0.10);
+    --good:        #0ca30c;
+    --warning:     #fab219;
+    --serious:     #ec835a;
+    --critical:    #e66767;
+    --good-soft:   #113511;
+    --critical-soft:#3a1717;
+    --warning-soft:#3a2e0d;
+    --muted-soft:  #232320;
+    --accent:      #3987e5;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--plane); color:var(--text-1);
+    font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+    line-height:1.4;
+  }
+  .wrap{max-width:980px; margin:0 auto; padding:20px 16px 60px;}
+  header{display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:8px 16px; margin-bottom:18px;}
+  h1{font-size:1.3rem; font-weight:700; margin:0; letter-spacing:-0.01em;}
+  .asof{font-size:.78rem; color:var(--muted);}
+  .tiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; margin-bottom:20px;}
+  .tile{background:var(--surface-1); border:1px solid var(--border); border-radius:10px; padding:12px 14px;}
+  .tile .label{font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted);}
+  .tile .value{font-size:1.4rem; font-weight:700; margin-top:2px; font-variant-numeric:proportional-nums;}
+  .tile .value.good{color:var(--good);}
+  .tile .value.critical{color:var(--critical);}
+  .filters{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;}
+  select{
+    font:inherit; font-size:.8rem; padding:6px 10px; border-radius:8px;
+    border:1px solid var(--border); background:var(--surface-1); color:var(--text-1);
+  }
+  table{width:100%; border-collapse:collapse; background:var(--surface-1); border:1px solid var(--border); border-radius:10px; overflow:hidden; font-size:.83rem;}
+  thead th{
+    text-align:left; font-size:.68rem; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);
+    padding:9px 10px; border-bottom:1px solid var(--grid); font-weight:600; white-space:nowrap;
+  }
+  tbody td{padding:9px 10px; border-bottom:1px solid var(--grid); vertical-align:top;}
+  tbody tr:last-child td{border-bottom:none;}
+  .mono{font-variant-numeric:tabular-nums;}
+  .sub{color:var(--text-2); font-size:.78rem;}
+  .badge{display:inline-block; padding:2px 8px; border-radius:999px; font-size:.72rem; font-weight:600;}
+  .badge.win{background:var(--good-soft); color:var(--good);}
+  .badge.loss{background:var(--critical-soft); color:var(--critical);}
+  .badge.push{background:var(--muted-soft); color:var(--text-2);}
+  .badge.pending{background:var(--warning-soft); color:#9a6a00;}
+  @media (prefers-color-scheme: dark){ .badge.pending{color:var(--warning);} }
+  :root[data-theme="dark"] .badge.pending{color:var(--warning);}
+  .badge.void{background:var(--muted-soft); color:var(--muted);}
+  .tierpill{font-size:.7rem; color:var(--muted);}
+  footer{margin-top:22px; font-size:.72rem; color:var(--muted);}
+  .empty{padding:30px; text-align:center; color:var(--muted);}
+  @media (max-width:640px){
+    table, thead, tbody, tr{display:block;}
+    thead{display:none;}
+    tbody tr{border-bottom:1px solid var(--grid); padding:10px 0;}
+    tbody td{border:none; padding:2px 0;}
+    tbody td[data-label]::before{content:attr(data-label); display:block; font-size:.65rem; text-transform:uppercase; color:var(--muted); letter-spacing:.05em;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Sharp Sheet — Picks</h1>
+    <div class="asof" id="asof"></div>
+  </header>
+
+  <div class="tiles" id="tiles"></div>
+
+  <div class="filters">
+    <select id="fSport"><option value="">All sports</option></select>
+    <select id="fStatus">
+      <option value="">All results</option>
+      <option value="win">Wins</option>
+      <option value="loss">Losses</option>
+      <option value="push">Pushes</option>
+      <option value="pending">Pending</option>
+      <option value="void">Void</option>
+    </select>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th><th>Matchup</th><th>Pick</th><th>Line</th><th>Tier</th><th>Result</th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+  <div class="empty" id="empty" hidden>No picks match this filter.</div>
+
+  <footer>Picks and results only. Personal tracking, not betting advice. Odds shown are as taken at the time of the pick.</footer>
+</div>
+
+<script id="sharp-data" type="application/json">{"summary": {"asOf": "Sep 30, 2026 · 3:05 PM ET", "unit": 1000, "record": "38-20", "netUnits": 12.72, "pending": 0, "void": 1, "total": 59}, "tiers": [{"key": "lean", "label": "Lean", "units": 0.5}, {"key": "solid", "label": "Solid", "units": 1}, {"key": "strong", "label": "Strong", "units": 2}, {"key": "heavy", "label": "Heavy", "units": 3}, {"key": "max", "label": "Max", "units": 5}], "picks": [{"date": "2026-09-17", "sport": "NFL", "matchup": "DET @ BUF", "market": "Player prop", "selection": "J. Gibbs — over 29.5 rec yds", "odds": -110, "tier": "lean", "units": 0.5, "status": "win", "margin": 31.5, "marginUnit": "yds", "book": "DraftKings"}, {"date": "2026-09-17", "sport": "NFL", "matchup": "DET @ BUF", "market": "Player prop", "selection": "A. St. Brown — anytime TD", "odds": 115, "tier": "lean", "units": 0.5, "status": "win", "margin": null, "marginUnit": null, "book": "BetMGM"}, {"date": "2026-09-18", "sport": "CFB", "matchup": "Houston @ Texas Tech", "market": "Total", "selection": "Over 52.5", "odds": -108, "tier": "lean", "units": 0.5, "status": "win", "margin": 1.5, "marginUnit": "pts", "book": "DraftKings"}, {"date": "2026-09-19", "sport": "CFB", "matchup": "Colorado @ Northwestern", "market": "Total", "selection": "Under 48.5", "odds": -105, "tier": "solid", "units": 1, "status": "win", "margin": 0.5, "marginUnit": "pts", "book": "FanDuel"}, {"date": "2026-09-19", "sport": "CFB", "margin": 5, "marginUnit": "pts", "tier": "lean", "units": 0.5, "status": "win", "matchup": "North Carolina @ Clemson", "market": "Spread", "selection": "Clemson -3", "odds": -110, "book": "DraftKings (also FanDuel/BetMGM/Caesars)"}, {"date": "2026-09-19", "sport": "CFB", "margin": 27, "marginUnit": "pts", "tier": "lean", "units": 0.5, "status": "win", "matchup": "Kentucky @ Texas A&M", "market": "Spread", "selection": "Kentucky +17", "odds": -110, "book": "FanDuel (also DraftKings/BetMGM/Caesars)"}, {"date": "2026-09-19", "sport": "CFB", "margin": 5, "marginUnit": "pts", "tier": "lean", "units": 0.5, "status": "win", "matchup": "Temple @ Toledo", "market": "Spread", "selection": "Temple +6", "odds": -110, "book": "DraftKings (also FanDuel/BetMGM/Caesars)"}, {"date": "2026-09-19", "sport": "CFB", "margin": -11.5, "marginUnit": "pts", "tier": "lean", "units": 0.5, "status": "loss", "matchup": "West Virginia vs Virginia (Charlotte)", "market": "Total", "selection": "Under 53.5", "odds": -110, "book": "bet365 (also Hard Rock/DraftKings)"}, {"date": "2026-09-20", "sport": "NFL", "matchup": "MIN @ CHI", "market": "Total", "selection": "Under 48.5", "odds": -110, "tier": "solid", "units": 1, "status": "win", "margin": 36.5, "marginUnit": "points", "book": "DraftKings"}, {"date": "2026-09-20", "sport": "NFL", "matchup": "CIN @ HOU", "market": "Spread", "selection": "CIN +2.5", "odds": -102, "tier": "lean", "units": 0.5, "status": "win", "margin": 16.5, "marginUnit": "points", "book": "DraftKings"}, {"date": "2026-09-20", "sport": "NFL", "matchup": "NO @ BAL", "market": "Spread", "selection": "NO +8.5", "odds": -105, "tier": "lean", "units": 0.5, "status": "win", "margin": 15.5, "marginUnit": "points", "book": "FanDuel"}, {"date": "2026-09-20", "sport": "NFL", "matchup": "SEA @ ARI", "market": "Player prop", "selection": "T. McBride — over 6.5 receptions", "odds": 104, "tier": "strong", "units": 2, "margin": 1.5, "marginUnit": "rec", "status": "win", "book": "DraftKings"}, {"date": "2026-09-20", "sport": "NFL", "matchup": "CLE @ TB", "market": "Player prop", "selection": "B. Irving — over 16.5 rec yds", "odds": -110, "tier": "solid", "units": 1, "margin": -15.5, "marginUnit": "yds", "status": "loss", "book": "DraftKings / bet365"}, {"date": "2026-09-20", "sport": "NFL", "matchup": "IND @ KC (SNF)", "market": "Player prop", "selection": "K. Walker III — over 79.5 rush yds", "odds": -114, "tier": "lean", "units": 0.5, "margin": 37.5, "marginUnit": "yds", "status": "win", "book": "FanDuel"}, {"date": "2026-09-20", "sport": "NFL", "matchup": "WAS @ DAL", "market": "Total", "selection": "Over 50.5", "odds": -110, "tier": "lean", "units": 0.5, "margin": 6.5, "marginUnit": "points", "status": "win", "book": "FanDuel / DraftKings"}, {"date": "2026-09-20", "sport": "NFL", "matchup": "PHI @ TEN", "market": "Player prop", "selection": "D. Goedert — over 37.5 rec yds", "odds": -113, "tier": "lean", "units": 0.5, "status": "loss", "margin": -33.5, "marginUnit": "yds", "book": "DraftKings"}, {"date": "2026-09-20", "sport": "NFL", "matchup": "CAR @ ATL", "market": "Player prop", "selection": "B. Robinson -- over 81.5 rush yds", "odds": -111, "tier": "lean", "units": 0.5, "status": "loss", "margin": -9.5, "marginUnit": "yds", "book": "DraftKings"}, {"date": "2026-09-20", "sport": "NFL", "tier": "solid", "units": 1, "status": "win", "margin": 10.5, "marginUnit": "points", "matchup": "MIN @ CHI", "market": "Spread", "selection": "MIN +5.5", "odds": -108, "book": "DraftKings (also at BetRivers/Hard Rock)"}, {"date": "2026-09-20", "sport": "NFL", "tier": "lean", "units": 0.5, "status": "loss", "margin": -19.5, "marginUnit": "points", "matchup": "SEA @ ARI", "market": "Spread", "selection": "ARI +4.5", "odds": -120, "book": "FanDuel"}, {"date": "2026-09-20", "sport": "NFL", "matchup": "CIN @ HOU", "market": "Player prop", "selection": "X. Hutchinson -- over 29.5 rec yds", "odds": -115, "tier": "solid", "units": 1, "status": "win", "margin": 7.5, "marginUnit": "yds", "book": "bet365"}, {"date": "2026-09-21", "sport": "NFL", "matchup": "NYG @ LAR (MNF)", "market": "Total", "selection": "Under 47.5", "odds": -110, "tier": "lean", "units": 0.5, "status": "win", "margin": 13.5, "marginUnit": "pts", "book": "Not recorded"}, {"date": "2026-09-21", "sport": "NFL", "matchup": "NYG @ LAR (MNF)", "market": "Player prop", "selection": "C. Skattebo — anytime TD", "odds": 110, "tier": "lean", "units": 0.5, "status": "loss", "margin": null, "marginUnit": null, "book": "Not recorded"}, {"date": "2026-09-21", "sport": "NFL", "matchup": "NYG @ LAR (MNF)", "market": "Player prop", "selection": "K. Williams — over 61.5 rush yds", "odds": -110, "tier": "solid", "units": 1, "status": "win", "margin": 23.5, "marginUnit": "yds", "book": "Not recorded"}, {"date": "2026-09-21", "sport": "NFL", "matchup": "NYG @ LAR (MNF)", "market": "Player prop", "selection": "D. Adams — anytime TD", "odds": 100, "tier": "lean", "units": 0.5, "status": "win", "margin": null, "marginUnit": null, "book": "Not recorded"}, {"date": "2026-09-24", "sport": "NFL", "matchup": "ATL @ GB", "market": "Total", "selection": "Under 44.5", "odds": -109, "tier": "solid", "units": 1, "status": "loss", "margin": -4.5, "marginUnit": "pts", "book": "Caesars"}, {"date": "2026-09-24", "sport": "NFL", "matchup": "ATL @ GB", "market": "Player prop", "selection": "J. Love — under 230.5 pass yds", "odds": -115, "tier": "lean", "units": 0.5, "status": "loss", "margin": -81.5, "marginUnit": "yds", "book": "bet365"}, {"date": "2026-09-25", "sport": "CFB", "matchup": "Army @ Temple", "market": "Total", "selection": "Under 48.5", "odds": -110, "tier": "lean", "units": 0.5, "status": "win", "margin": 10.5, "marginUnit": "pts", "book": "FanDuel"}, {"date": "2026-09-25", "sport": "CFB", "matchup": "Clemson @ Cal", "market": "Spread", "selection": "Clemson PK", "odds": -110, "tier": "lean", "units": 0.5, "status": "win", "margin": 14, "marginUnit": "pts", "book": "Caesars (also DraftKings/FanDuel/BetMGM/bet365)"}, {"date": "2026-09-26", "sport": "CFB", "matchup": "Wisconsin @ Penn State", "market": "Spread", "selection": "Wisconsin +9.5", "odds": -102, "tier": "lean", "units": 0.5, "status": "win", "margin": 13.5, "marginUnit": "pts", "book": "FanDuel"}, {"date": "2026-09-26", "sport": "CFB", "matchup": "Virginia Tech @ Boston College", "market": "Total", "selection": "Under 47.5", "odds": -110, "tier": "lean", "units": 0.5, "status": "win", "margin": 12.5, "marginUnit": "pts", "book": "bet365 (also BetMGM/DraftKings/BetRivers/Hard Rock)"}, {"date": "2026-09-26", "sport": "CFB", "matchup": "Virginia Tech @ Boston College", "market": "Spread", "selection": "BC +14", "odds": -110, "tier": "lean", "units": 0.5, "status": "win", "margin": 7, "marginUnit": "pts", "book": "BetMGM / DraftKings / Caesars / BetRivers"}, {"date": "2026-09-26", "sport": "CFB", "matchup": "Stony Brook @ Fordham", "market": "Total", "selection": "Under 53.5", "odds": -112, "tier": "solid", "units": 1, "status": "win", "margin": 6.5, "marginUnit": "pts", "book": "Kalshi"}, {"date": "2026-09-26", "sport": "CFB", "matchup": "New Hampshire @ Sacred Heart", "market": "Total", "selection": "Under 44.5", "odds": -110, "tier": "solid", "units": 1, "status": "win", "margin": 11.5, "marginUnit": "pts", "book": "DraftKings"}, {"date": "2026-09-26", "sport": "CFB", "matchup": "New Haven @ Merrimack", "market": "Total", "selection": "Under 42.5", "odds": -115, "tier": "lean", "units": 0.5, "status": "win", "margin": 15.5, "marginUnit": "pts", "book": "Kalshi"}, {"date": "2026-09-26", "sport": "CFB", "matchup": "Holy Cross @ Lafayette", "market": "Total", "selection": "Under 49.5", "odds": -115, "tier": "lean", "units": 0.5, "status": "loss", "margin": -18.5, "marginUnit": "pts", "book": "Kalshi"}, {"date": "2026-09-26", "sport": "CFB", "matchup": "Colgate @ Villanova", "market": "Total", "selection": "Under 43.5", "odds": -102, "tier": "lean", "units": 0.5, "status": "loss", "margin": -5.5, "marginUnit": "pts", "book": "Kalshi"}, {"date": "2026-09-27", "sport": "NFL", "matchup": "BAL @ DAL (Rio)", "market": "Player prop", "selection": "D. Henry — over 89.5 rush yds", "odds": -114, "tier": "lean", "units": 0.5, "status": "loss", "margin": -0.5, "marginUnit": "yds", "book": "FanDuel"}, {"date": "2026-09-27", "sport": "NFL", "matchup": "KC @ MIA", "market": "Total", "selection": "Under 46.5", "odds": -115, "tier": "lean", "units": 0.5, "status": "win", "margin": 12.5, "marginUnit": "pts", "book": "Consensus (FanDuel)"}, {"date": "2026-09-27", "sport": "NFL", "matchup": "BAL @ DAL (Rio)", "market": "Total", "selection": "Over 52.5", "odds": -106, "tier": "lean", "units": 0.5, "status": "win", "margin": 12.5, "marginUnit": "pts", "book": "FanDuel"}, {"date": "2026-09-27", "sport": "NFL", "matchup": "HOU @ IND", "market": "Total", "selection": "Over 42.5", "odds": -112, "tier": "lean", "units": 0.5, "status": "void", "margin": null, "marginUnit": null, "book": "Consensus (DraftKings/BetMGM/Caesars)"}, {"date": "2026-09-27", "sport": "NFL", "matchup": "CIN @ PIT", "market": "Total", "selection": "Under 42.5", "odds": -108, "tier": "lean", "units": 0.5, "status": "loss", "margin": -14.5, "marginUnit": "pts", "book": "DraftKings"}, {"date": "2026-09-27", "sport": "NFL", "matchup": "TEN @ NYG", "status": "win", "margin": 19, "marginUnit": "pts", "market": "Total", "selection": "Under 38", "odds": -108, "tier": "solid", "units": 1, "book": "BetRivers (also DraftKings/Caesars)"}, {"date": "2026-09-27", "sport": "NFL", "matchup": "TEN @ NYG", "status": "win", "margin": 21.5, "marginUnit": "pts", "market": "Total (alt rung)", "selection": "Under 40.5 (Kalshi NO on 'Over 40.5')", "odds": -161, "tier": "lean", "units": 0.5, "book": "Kalshi"}, {"date": "2026-09-27", "sport": "NFL", "matchup": "TEN @ NYG", "status": "win", "margin": 8.5, "marginUnit": "yds", "market": "Player prop", "selection": "C. Ward — under 189.5 pass yds", "odds": -111, "tier": "strong", "units": 2, "book": "DraftKings (also FanDuel)"}, {"date": "2026-09-27", "sport": "NFL", "matchup": "TEN @ NYG", "market": "Player prop", "selection": "J. Winston -- under 200.5 pass yds", "odds": -113, "tier": "solid", "units": 1, "status": "win", "margin": 82.5, "marginUnit": "yds", "book": "FanDuel"}, {"margin": -26.5, "marginUnit": "yds", "status": "loss", "date": "2026-09-27", "sport": "NFL", "matchup": "CIN @ PIT", "market": "Player prop", "selection": "J. Burrow -- under 255.5 pass yds", "odds": -112, "tier": "lean", "units": 0.5, "book": "DraftKings"}, {"margin": -6, "marginUnit": "pts", "status": "loss", "date": "2026-09-27", "sport": "NFL", "matchup": "CIN @ PIT", "market": "Spread", "selection": "Bengals -3", "odds": -115, "tier": "lean", "units": 0.5, "book": "Caesars / Fanatics"}, {"margin": 26, "marginUnit": "pts", "status": "win", "date": "2026-09-27", "sport": "NFL", "matchup": "NE @ JAX", "market": "Spread", "selection": "Jaguars -3", "odds": -108, "tier": "solid", "units": 1, "book": "Consensus"}, {"margin": -18.5, "marginUnit": "yds", "status": "loss", "date": "2026-09-27", "sport": "NFL", "matchup": "NE @ JAX", "market": "Player prop", "selection": "T. Henderson -- over 41.5 rush yds", "odds": -113, "tier": "solid", "units": 1, "book": "FanDuel"}, {"margin": -3.5, "marginUnit": "rec", "status": "loss", "date": "2026-09-27", "sport": "NFL", "matchup": "NYJ @ DET", "market": "Player prop", "selection": "A. St. Brown -- over 7.5 receptions (8+)", "odds": 130, "tier": "solid", "units": 1, "book": "FanDuel"}, {"margin": 6.5, "marginUnit": "pts", "status": "win", "date": "2026-09-27", "sport": "NFL", "matchup": "HOU @ IND", "market": "Total", "selection": "Under 42.5", "odds": -108, "tier": "lean", "units": 0.5, "book": "DraftKings"}, {"margin": -23.5, "marginUnit": "pts", "status": "loss", "date": "2026-09-27", "sport": "NFL", "matchup": "SEA @ WAS", "market": "Total", "selection": "Under 40.5/39.5", "odds": -110, "tier": "lean", "units": 0.5, "book": "bet365 / BetMGM / Fanatics"}, {"margin": -18.5, "marginUnit": "yds", "status": "loss", "date": "2026-09-27", "sport": "NFL", "matchup": "BUF @ LAC", "market": "Player prop", "selection": "D. Kincaid -- over 56.5 rec yds", "odds": -112, "tier": "solid", "units": 1, "book": "DraftKings"}, {"margin": 3.5, "marginUnit": "pts", "status": "win", "date": "2026-09-27", "sport": "NFL", "matchup": "MIN @ TB", "market": "Total", "selection": "Under 42.5", "odds": -110, "tier": "solid", "units": 1, "book": "Consensus"}, {"margin": -0.5, "marginUnit": "yds", "status": "loss", "date": "2026-09-27", "sport": "NFL", "matchup": "MIN @ TB", "market": "Player prop", "selection": "B. Mayfield -- under 216.5 pass yds", "odds": -111, "tier": "solid", "units": 0.5, "book": "DraftKings"}, {"margin": null, "marginUnit": null, "status": "loss", "date": "2026-09-27", "sport": "NFL", "matchup": "LAR @ DEN", "market": "Moneyline", "selection": "Rams ML", "odds": -128, "tier": "solid", "units": 1, "book": "Consensus"}, {"date": "2026-09-28", "sport": "NFL", "matchup": "PHI @ CHI (MNF)", "market": "Spread", "selection": "CHI +4.5", "odds": -110, "tier": "lean", "units": 0.5, "status": "win", "margin": 24.5, "marginUnit": "pts", "book": "Not recorded"}, {"date": "2026-09-28", "sport": "NFL", "matchup": "PHI @ CHI (MNF)", "market": "Player prop", "selection": "K. Raymond — over 24.5 rec yds", "odds": -114, "tier": "solid", "units": 1, "status": "win", "margin": 65.5, "marginUnit": "yds", "book": "Not recorded"}, {"date": "2026-09-28", "sport": "NFL", "matchup": "PHI @ CHI (MNF)", "market": "Player prop", "selection": "D. Swift — over 1.5 receptions", "odds": -125, "tier": "lean", "units": 0.5, "status": "win", "margin": 0.5, "marginUnit": "rec", "book": "Not recorded"}]}</script>
+<script>
+(function(){
+  var DATA = JSON.parse(document.getElementById('sharp-data').textContent);
+  var picks = DATA.picks.slice().sort(function(a,b){ return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
+  var s = DATA.summary;
+
+  document.getElementById('asof').textContent = 'As of ' + s.asOf;
+
+  var tiles = document.getElementById('tiles');
+  function tile(label, value, cls){
+    var d = document.createElement('div'); d.className = 'tile';
+    d.innerHTML = '<div class="label">'+label+'</div><div class="value'+(cls?' '+cls:'')+'">'+value+'</div>';
+    tiles.appendChild(d);
+  }
+  tile('Record', s.record);
+  tile('Net units', (s.netUnits>0?'+':'') + s.netUnits.toFixed(2) + 'u', s.netUnits>0?'good':s.netUnits<0?'critical':'');
+  if (s.pending) tile('Pending', s.pending);
+  tile('Unit size', '$' + s.unit.toLocaleString());
+
+  var sports = Array.from(new Set(picks.map(function(p){return p.sport;}))).sort();
+  var fSport = document.getElementById('fSport');
+  sports.forEach(function(sp){
+    var o = document.createElement('option'); o.value = sp; o.textContent = sp; fSport.appendChild(o);
+  });
+
+  function fmtOdds(o){ return (o>0?'+':'') + o; }
+  function tierLabel(key){
+    var t = DATA.tiers.find(function(t){return t.key===key;});
+    return t ? t.label : key;
+  }
+  function resultText(p){
+    if (p.status === 'win') return 'WIN' + (p.margin!=null ? ' (+'+p.margin+(p.marginUnit||'')+')' : '');
+    if (p.status === 'loss') return 'LOSS' + (p.margin!=null ? ' ('+p.margin+(p.marginUnit||'')+')' : '');
+    if (p.status === 'push') return 'PUSH';
+    if (p.status === 'pending') return 'Pending';
+    if (p.status === 'void') return 'Void';
+    return p.status;
+  }
+
+  var rowsEl = document.getElementById('rows');
+  var emptyEl = document.getElementById('empty');
+
+  function render(){
+    var sport = fSport.value, status = document.getElementById('fStatus').value;
+    var shown = picks.filter(function(p){
+      return (!sport || p.sport===sport) && (!status || p.status===status);
+    });
+    rowsEl.innerHTML = '';
+    emptyEl.hidden = shown.length > 0;
+    shown.forEach(function(p){
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td data-label="Date" class="mono sub">'+p.date+'</td>'+
+        '<td data-label="Matchup"><div>'+p.matchup+'</div><div class="sub">'+p.sport+' · '+p.market+'</div></td>'+
+        '<td data-label="Pick">'+p.selection+'</td>'+
+        '<td data-label="Line" class="mono">'+fmtOdds(p.odds)+'<div class="sub">'+p.book+'</div></td>'+
+        '<td data-label="Tier"><span class="tierpill">'+tierLabel(p.tier)+' · '+p.units+'u</span></td>'+
+        '<td data-label="Result"><span class="badge '+p.status+'">'+resultText(p)+'</span></td>';
+      rowsEl.appendChild(tr);
+    });
+  }
+  fSport.addEventListener('change', render);
+  document.getElementById('fStatus').addEventListener('change', render);
+  render();
+})();
+</script>
+</body>
+</html>
