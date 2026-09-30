@@ -1,0 +1,26 @@
+name: Publish Sharp Sheet (public)
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+permissions: {contents: read, pages: write, id-token: write}
+concurrency: {group: pages, cancel-in-progress: false}
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: {name: github-pages, url: "${{ steps.deployment.outputs.page_url }}"}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Leak guard - refuse to publish anything but the scrubbed page
+        run: |
+          set -e
+          extra=$(git ls-files | grep -v -x -E 'docs/index.html|docs/robots.txt|\.github/workflows/pages.yml|README.md' || true)
+          if [ -n "$extra" ]; then echo "BLOCKED: unexpected files: $extra"; exit 1; fi
+          grep -q '<title>Sharp Sheet — Picks</title>' docs/index.html || { echo "BLOCKED: wrong page title"; exit 1; }
+          if grep -i -n -E 'internal|fable|kelly|confidence|"conf"|\bedge\b|"rules"|"reviews"|"model"|methodology|calibration|shopped|backtest' docs/index.html; then echo "BLOCKED: proprietary term found"; exit 1; fi
+          echo "Leak guard passed"
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with: {path: docs}
+      - id: deployment
+        uses: actions/deploy-pages@v4
