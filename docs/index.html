@@ -2,130 +2,87 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Sharp Sheet — Picks</title>
 <meta name="robots" content="noindex, nofollow">
 <style>
   :root{
     color-scheme: light;
-    --surface-1:   #fcfcfb;
-    --plane:       #f9f9f7;
-    --text-1:      #0b0b0b;
-    --text-2:      #52514e;
-    --muted:       #898781;
-    --grid:        #e1e0d9;
-    --border:      rgba(11,11,11,0.10);
-    --good:        #0ca30c;
-    --warning:     #fab219;
-    --serious:     #ec835a;
-    --critical:    #d03b3b;
-    --good-soft:   #e3f5e3;
-    --critical-soft:#fbe6e6;
-    --warning-soft:#fff4dc;
-    --muted-soft:  #eeede9;
-    --accent:      #2a78d6;
+    --surface: #ffffff; --plane: #f4f4f1; --text-1: #0b0b0b; --text-2: #55534f; --muted: #8b8983;
+    --border: rgba(11,11,11,0.09); --line: rgba(11,11,11,0.06);
+    --good: #12873a; --good-soft: #e3f4e8; --bad: #c9352f; --bad-soft: #fbe7e5;
+    --warn: #8a5d00; --warn-soft: #fff2d6; --muted-soft: #eeede9; --accent: #2a6fd6;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
       color-scheme: dark;
-      --surface-1:   #1a1a19;
-      --plane:       #0d0d0d;
-      --text-1:      #ffffff;
-      --text-2:      #c3c2b7;
-      --muted:       #898781;
-      --grid:        #2c2c2a;
-      --border:      rgba(255,255,255,0.10);
-      --good:        #0ca30c;
-      --warning:     #fab219;
-      --serious:     #ec835a;
-      --critical:    #e66767;
-      --good-soft:   #113511;
-      --critical-soft:#3a1717;
-      --warning-soft:#3a2e0d;
-      --muted-soft:  #232320;
-      --accent:      #3987e5;
+      --surface: #1a1a19; --plane: #0e0e0d; --text-1: #f5f5f3; --text-2: #c3c2b7; --muted: #8b8983;
+      --border: rgba(255,255,255,0.10); --line: rgba(255,255,255,0.07);
+      --good: #3fc46b; --good-soft: #12301b; --bad: #ef6b63; --bad-soft: #3a1816;
+      --warn: #f2bb4a; --warn-soft: #3a2e0d; --muted-soft: #262623; --accent: #5b9bef;
     }
   }
   :root[data-theme="dark"]{
     color-scheme: dark;
-    --surface-1:   #1a1a19;
-    --plane:       #0d0d0d;
-    --text-1:      #ffffff;
-    --text-2:      #c3c2b7;
-    --muted:       #898781;
-    --grid:        #2c2c2a;
-    --border:      rgba(255,255,255,0.10);
-    --good:        #0ca30c;
-    --warning:     #fab219;
-    --serious:     #ec835a;
-    --critical:    #e66767;
-    --good-soft:   #113511;
-    --critical-soft:#3a1717;
-    --warning-soft:#3a2e0d;
-    --muted-soft:  #232320;
-    --accent:      #3987e5;
+    --surface: #1a1a19; --plane: #0e0e0d; --text-1: #f5f5f3; --text-2: #c3c2b7; --muted: #8b8983;
+    --border: rgba(255,255,255,0.10); --line: rgba(255,255,255,0.07);
+    --good: #3fc46b; --good-soft: #12301b; --bad: #ef6b63; --bad-soft: #3a1816;
+    --warn: #f2bb4a; --warn-soft: #3a2e0d; --muted-soft: #262623; --accent: #5b9bef;
   }
   *{box-sizing:border-box;}
-  body{
-    margin:0; background:var(--plane); color:var(--text-1);
-    font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
-    line-height:1.4;
-  }
-  .wrap{max-width:980px; margin:0 auto; padding:20px 16px 60px;}
-  header{display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:8px 16px; margin-bottom:18px;}
-  h1{font-size:1.3rem; font-weight:700; margin:0; letter-spacing:-0.01em;}
-  .asof{font-size:.78rem; color:var(--muted);}
-  .tiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; margin-bottom:20px;}
-  .tile{background:var(--surface-1); border:1px solid var(--border); border-radius:10px; padding:12px 14px;}
-  .tile .label{font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted);}
-  .tile .value{font-size:1.4rem; font-weight:700; margin-top:2px; font-variant-numeric:proportional-nums;}
-  .tile .value.good{color:var(--good);}
-  .tile .value.critical{color:var(--critical);}
-  .filters{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;}
-  select{
-    font:inherit; font-size:.8rem; padding:6px 10px; border-radius:8px;
-    border:1px solid var(--border); background:var(--surface-1); color:var(--text-1);
-  }
-  table{width:100%; border-collapse:collapse; background:var(--surface-1); border:1px solid var(--border); border-radius:10px; overflow:hidden; font-size:.83rem;}
-  thead th{
-    text-align:left; font-size:.68rem; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);
-    padding:9px 10px; border-bottom:1px solid var(--grid); font-weight:600; white-space:nowrap;
-  }
-  tbody td{padding:9px 10px; border-bottom:1px solid var(--grid); vertical-align:top;}
-  tbody tr:last-child td{border-bottom:none;}
-  .mono{font-variant-numeric:tabular-nums;}
-  .sub{color:var(--text-2); font-size:.78rem;}
-  .badge{display:inline-block; padding:2px 8px; border-radius:999px; font-size:.72rem; font-weight:600;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0; background:var(--plane); color:var(--text-1); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif; line-height:1.35;}
+  .wrap{max-width:640px; margin:0 auto; padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(48px + env(safe-area-inset-bottom,0px));}
+  header{margin-bottom:14px;}
+  h1{font-size:1.45rem; font-weight:750; margin:0; letter-spacing:-0.015em;}
+  .asof{font-size:.78rem; color:var(--muted); margin-top:2px;}
+  .tiles{display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-bottom:18px;}
+  @media (min-width:520px){ .tiles{grid-template-columns:repeat(4,1fr);} }
+  .tile{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:10px 12px;}
+  .tile .label{font-size:.66rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted);}
+  .tile .value{font-size:1.3rem; font-weight:700; margin-top:2px; font-variant-numeric:tabular-nums;}
+  .tile .value.good{color:var(--good);} .tile .value.bad{color:var(--bad);}
+  .filters{display:flex; gap:8px; margin-bottom:16px;}
+  select{font:inherit; font-size:.85rem; padding:8px 30px 8px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text-1); flex:1; min-width:0;
+    appearance:none; -webkit-appearance:none; background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);
+    background-position:calc(100% - 15px) 52%,calc(100% - 10px) 52%; background-size:5px 5px; background-repeat:no-repeat;}
+  .group-h{display:flex; align-items:baseline; justify-content:space-between; font-size:.72rem; font-weight:650; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin:18px 2px 8px;}
+  .group-h:first-of-type{margin-top:0;}
+  .list{display:flex; flex-direction:column; gap:8px;}
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden;}
+  .card.cond{border:1.5px dashed var(--warn);}
+  .card.go{border:1.5px solid var(--good);}
+  .row{display:block; width:100%; text-align:left; background:none; border:0; color:inherit; font:inherit; padding:12px 14px; cursor:default;}
+  .card.has-detail .row{cursor:pointer;}
+  .card.has-detail .row:active{background:var(--muted-soft);}
+  .r1{display:flex; justify-content:space-between; align-items:center; gap:10px;}
+  .meta{font-size:.72rem; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0;}
+  .pick{font-size:1rem; font-weight:650; margin:4px 0 6px; overflow-wrap:anywhere;}
+  .r3{display:flex; justify-content:space-between; align-items:center; gap:10px; font-size:.82rem; color:var(--text-2);}
+  .odds{font-variant-numeric:tabular-nums;} .odds b{color:var(--text-1); font-weight:650;}
+  .stake{white-space:nowrap; font-variant-numeric:tabular-nums;} .stake b{color:var(--text-1);}
+  .badge{display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:999px; font-size:.7rem; font-weight:650; white-space:nowrap; flex:0 0 auto;}
   .badge.win{background:var(--good-soft); color:var(--good);}
-  .badge.loss{background:var(--critical-soft); color:var(--critical);}
-  .badge.push{background:var(--muted-soft); color:var(--text-2);}
-  .badge.pending{background:var(--warning-soft); color:#9a6a00;}
-  @media (prefers-color-scheme: dark){ .badge.pending{color:var(--warning);} }
-  :root[data-theme="dark"] .badge.pending{color:var(--warning);}
-  .badge.conditional{background:var(--warning-soft); color:#9a6a00; border:1px dashed #9a6a00;}
-  .cond-note{font-size:.8rem; color:var(--text-2); margin:0 0 10px;}
-  .cond-wrap{display:flex; flex-direction:column; gap:10px; margin-bottom:22px;}
-  .cond-card{background:var(--surface-1); border:1px dashed var(--serious); border-radius:10px; padding:12px 14px;}
-  .cond-card.go{border:2px solid var(--good);} .cond-card.nogo{border:1px solid var(--border); opacity:.8;}
-  .cond-top{display:flex; justify-content:space-between; gap:10px;}
-  .cond-sel{font-weight:700;} .cond-sub{font-size:.7rem; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);}
-  .cond-units{font-weight:800; white-space:nowrap; text-align:right;} .cond-units .s{display:block; font-size:.65rem; color:var(--muted); text-transform:uppercase;}
-  .cond-grid{display:grid; grid-template-columns:100px 1fr; gap:4px 10px; margin-top:8px; font-size:.82rem; color:var(--text-2);}
-  .cond-grid .k{font-size:.65rem; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); padding-top:2px;}
-  .cond-grid .k.go{color:var(--good);} .cond-grid .k.nogo{color:var(--critical);}
-  .cond-h{font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin:0 0 6px;}
-  @media (max-width:560px){ .cond-grid{grid-template-columns:1fr;} }
-  .badge.void{background:var(--muted-soft); color:var(--muted);}
-  .tierpill{font-size:.7rem; color:var(--muted);}
-  footer{margin-top:22px; font-size:.72rem; color:var(--muted);}
-  .empty{padding:30px; text-align:center; color:var(--muted);}
-  @media (max-width:640px){
-    table, thead, tbody, tr{display:block;}
-    thead{display:none;}
-    tbody tr{border-bottom:1px solid var(--grid); padding:10px 0;}
-    tbody td{border:none; padding:2px 0;}
-    tbody td[data-label]::before{content:attr(data-label); display:block; font-size:.65rem; text-transform:uppercase; color:var(--muted); letter-spacing:.05em;}
-  }
+  .badge.loss{background:var(--bad-soft); color:var(--bad);}
+  .badge.push,.badge.void{background:var(--muted-soft); color:var(--text-2);}
+  .badge.pending{background:var(--warn-soft); color:var(--warn);}
+  .badge.conditional{background:var(--warn-soft); color:var(--warn); border:1px dashed var(--warn);}
+  .badge.go{background:var(--good-soft); color:var(--good);}
+  .badge.nogo{background:var(--muted-soft); color:var(--muted);}
+  .chev{display:inline-block; margin-left:6px; color:var(--muted); transition:transform .15s;}
+  .card.open .chev{transform:rotate(90deg);}
+  .hint{font-size:.72rem; color:var(--warn); margin-top:6px;}
+  .detail{display:none; padding:2px 14px 14px; border-top:1px solid var(--line);}
+  .card.open .detail{display:block;}
+  .d-item{padding-top:10px;}
+  .d-k{font-size:.64rem; font-weight:650; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); margin-bottom:2px;}
+  .d-k.go{color:var(--good);} .d-k.nogo{color:var(--bad);}
+  .d-v{font-size:.86rem; color:var(--text-2); line-height:1.45;}
+  .d-v b{color:var(--text-1);}
+  .note{font-size:.78rem; color:var(--text-2); background:var(--warn-soft); border-radius:10px; padding:8px 10px; margin:0 0 8px;}
+  .more{display:block; width:100%; margin-top:10px; padding:10px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text-2); font:inherit; font-size:.82rem; cursor:pointer;}
+  .empty{padding:28px; text-align:center; color:var(--muted); font-size:.85rem;}
+  footer{margin-top:24px; font-size:.72rem; color:var(--muted); text-align:center;}
 </style>
 </head>
 <body>
@@ -134,38 +91,19 @@
     <h1>Sharp Sheet — Picks</h1>
     <div class="asof" id="asof"></div>
   </header>
-
   <div class="tiles" id="tiles"></div>
-
-  <div id="condSection" hidden>
-    <div class="cond-h">Conditional plays — go / no-go calls</div>
-    <p class="cond-note">These are NOT bets yet. Each one has a set check time. At that time this page updates to <b>GO</b> (bet it, at the price shown) or <b>NO-GO</b> (no bet). Don't place these early.</p>
-    <div class="cond-wrap" id="condWrap"></div>
-  </div>
-
   <div class="filters">
-    <select id="fSport"><option value="">All sports</option></select>
-    <select id="fStatus">
-      <option value="">All results</option>
+    <select id="fSport" aria-label="Sport"><option value="">All sports</option></select>
+    <select id="fStatus" aria-label="Result">
+      <option value="">All picks</option>
+      <option value="open">Upcoming</option>
       <option value="win">Wins</option>
       <option value="loss">Losses</option>
       <option value="push">Pushes</option>
-      <option value="pending">Pending</option>
-      <option value="conditional">Conditional</option>
       <option value="void">Void</option>
     </select>
   </div>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Date</th><th>Matchup</th><th>Pick</th><th>Line</th><th>Tier</th><th>Result</th>
-      </tr>
-    </thead>
-    <tbody id="rows"></tbody>
-  </table>
-  <div class="empty" id="empty" hidden>No picks match this filter.</div>
-
+  <div id="out"></div>
   <footer>Picks and results only. Personal tracking, not betting advice. Odds shown are as taken at the time of the pick.</footer>
 </div>
 
@@ -173,85 +111,85 @@
 <script>
 (function(){
   var DATA = JSON.parse(document.getElementById('sharp-data').textContent);
-  var picks = DATA.picks.slice().sort(function(a,b){ return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
-  var s = DATA.summary;
+  var s = DATA.summary, ALL = DATA.picks;
+  function esc(x){ return String(x==null?'':x).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function fmtOdds(o){ return (o>0?'+':'')+o; }
+  function tierLabel(k){ var t=(DATA.tiers||[]).find(function(t){return t.key===k;}); return t?t.label:k; }
+  function niceDate(d){ var dt=new Date(d+'T12:00:00'); return dt.toLocaleDateString('en-US',{weekday:'short',month:'numeric',day:'numeric'}); }
+  function cleanSel(p){ return String(p.selection).replace(/\s+—\s+CONDITIONAL.*$/,''); }
+  function isOpen(p){ return p.status==='pending'||p.status==='conditional'; }
 
-  document.getElementById('asof').textContent = 'As of ' + s.asOf;
+  document.getElementById('asof').textContent='Updated '+s.asOf;
+  var tiles=document.getElementById('tiles');
+  function tile(l,v,c){ tiles.insertAdjacentHTML('beforeend','<div class="tile"><div class="label">'+l+'</div><div class="value'+(c?' '+c:'')+'">'+v+'</div></div>'); }
+  tile('Record',s.record);
+  tile('Net units',(s.netUnits>0?'+':'')+s.netUnits.toFixed(2)+'u',s.netUnits>0?'good':s.netUnits<0?'bad':'');
+  var nOpen=ALL.filter(isOpen).length;
+  tile('Upcoming',nOpen);
+  tile('Unit size','$'+s.unit.toLocaleString());
 
-  var tiles = document.getElementById('tiles');
-  function tile(label, value, cls){
-    var d = document.createElement('div'); d.className = 'tile';
-    d.innerHTML = '<div class="label">'+label+'</div><div class="value'+(cls?' '+cls:'')+'">'+value+'</div>';
-    tiles.appendChild(d);
+  var fSport=document.getElementById('fSport'), fStatus=document.getElementById('fStatus');
+  Array.from(new Set(ALL.map(function(p){return p.sport;}))).sort().forEach(function(sp){ fSport.insertAdjacentHTML('beforeend','<option value="'+esc(sp)+'">'+esc(sp)+'</option>'); });
+
+  function badge(p){
+    if(p.status==='conditional'){ var d=p.cond&&p.cond.decision; return d==='GO'?'<span class="badge go">GO</span>':d==='NO-GO'?'<span class="badge nogo">No-go</span>':'<span class="badge conditional">Conditional</span>'; }
+    if(p.cond&&p.cond.decision==='GO'&&p.status==='pending') return '<span class="badge go">GO · Pending</span>';
+    if(p.cond&&p.cond.decision==='NO-GO') return '<span class="badge nogo">No-go</span>';
+    var m={win:'Win',loss:'Loss',push:'Push',pending:'Pending',void:'Void'}[p.status]||p.status;
+    var mg=(p.status==='win'||p.status==='loss')&&p.margin!=null?' '+(p.status==='win'?'+':'')+p.margin+(p.marginUnit?' '+p.marginUnit:''):'';
+    return '<span class="badge '+esc(p.status)+'">'+m+mg+'</span>';
   }
-  tile('Record', s.record);
-  tile('Net units', (s.netUnits>0?'+':'') + s.netUnits.toFixed(2) + 'u', s.netUnits>0?'good':s.netUnits<0?'critical':'');
-  if (s.pending) tile('Pending', s.pending);
-  if (s.conditional) tile('Conditional', s.conditional);
-  tile('Unit size', '$' + s.unit.toLocaleString());
-
-  var sports = Array.from(new Set(picks.map(function(p){return p.sport;}))).sort();
-  var fSport = document.getElementById('fSport');
-  sports.forEach(function(sp){
-    var o = document.createElement('option'); o.value = sp; o.textContent = sp; fSport.appendChild(o);
-  });
-
-  function fmtOdds(o){ return (o>0?'+':'') + o; }
-  function tierLabel(key){
-    var t = DATA.tiers.find(function(t){return t.key===key;});
-    return t ? t.label : key;
+  function stake(p){
+    if(p.cond&&p.cond.decision==='NO-GO') return '<span class="stake">No bet</span>';
+    var u='<b>'+p.units+'u</b>';
+    return '<span class="stake">'+esc(tierLabel(p.tier))+' · '+u+(p.status==='conditional'?' if GO':'')+'</span>';
   }
-  function resultText(p){
-    if (p.status === 'win') return 'WIN' + (p.margin!=null ? ' (+'+p.margin+(p.marginUnit||'')+')' : '');
-    if (p.status === 'loss') return 'LOSS' + (p.margin!=null ? ' ('+p.margin+(p.marginUnit||'')+')' : '');
-    if (p.status === 'push') return 'PUSH';
-    if (p.status === 'pending') return 'Pending';
-    if (p.status === 'void') return 'Void';
-    if (p.status === 'conditional') return 'Conditional' + (p.cond && p.cond.decision ? ' — ' + p.cond.decision : ' — awaiting call');
-    return p.status;
+  function detail(p){
+    var c=p.cond; if(!c) return '';
+    var h='';
+    if(c.decision) h+='<div class="d-item"><div class="d-k">Call</div><div class="d-v"><b>'+esc(c.decision)+'</b>'+(c.reading?' — '+esc(c.reading):'')+'</div></div>';
+    h+='<div class="d-item"><div class="d-k">Call time</div><div class="d-v">'+esc(c.callAt)+'</div></div>';
+    h+='<div class="d-item"><div class="d-k go">Go if</div><div class="d-v">'+esc(c.go)+'</div></div>';
+    h+='<div class="d-item"><div class="d-k nogo">No-go if</div><div class="d-v">'+esc(c.noGo)+'</div></div>';
+    h+='<div class="d-item"><div class="d-k">Price</div><div class="d-v">'+esc(c.price)+'</div></div>';
+    if(c.why) h+='<div class="d-item"><div class="d-k">Why</div><div class="d-v">'+esc(c.why)+'</div></div>';
+    return h;
   }
-
-  var rowsEl = document.getElementById('rows');
-  var emptyEl = document.getElementById('empty');
-
+  function card(p){
+    var det=detail(p), cls='card'+(det?' has-detail':'')+(p.status==='conditional'&&!(p.cond&&p.cond.decision)?' cond':'')+(p.cond&&p.cond.decision==='GO'?' go':'');
+    var hint=(p.status==='conditional'&&!(p.cond&&p.cond.decision))?'<div class="hint">Not a bet yet — tap for the go / no-go rules</div>':'';
+    return '<div class="'+cls+'"><button class="row" type="button"'+(det?' aria-expanded="false"':' tabindex="-1"')+'>'+
+      '<div class="r1"><span class="meta">'+esc(p.sport)+' · '+esc(p.matchup)+' · '+niceDate(p.date)+'</span>'+badge(p)+'</div>'+
+      '<div class="pick">'+esc(cleanSel(p))+(det?'<span class="chev">›</span>':'')+'</div>'+
+      '<div class="r3"><span class="odds"><b>'+fmtOdds(p.odds)+'</b> · '+esc(p.book)+'</span>'+stake(p)+'</div>'+hint+
+      '</button>'+(det?'<div class="detail">'+det+'</div>':'')+'</div>';
+  }
+  var out=document.getElementById('out'), limit=25;
   function render(){
-    var sport = fSport.value, status = document.getElementById('fStatus').value;
-    var shown = picks.filter(function(p){
-      return (!sport || p.sport===sport) && (!status || p.status===status);
-    });
-    rowsEl.innerHTML = '';
-    emptyEl.hidden = shown.length > 0;
-    shown.forEach(function(p){
-      var tr = document.createElement('tr');
-      tr.innerHTML =
-        '<td data-label="Date" class="mono sub">'+p.date+'</td>'+
-        '<td data-label="Matchup"><div>'+p.matchup+'</div><div class="sub">'+p.sport+' · '+p.market+'</div></td>'+
-        '<td data-label="Pick">'+p.selection+'</td>'+
-        '<td data-label="Line" class="mono">'+fmtOdds(p.odds)+'<div class="sub">'+p.book+'</div></td>'+
-        '<td data-label="Tier"><span class="tierpill">'+tierLabel(p.tier)+' · '+p.units+'u'+(p.status==='conditional'?' if GO':'')+'</span></td>'+
-        '<td data-label="Result"><span class="badge '+p.status+'">'+resultText(p)+'</span></td>';
-      rowsEl.appendChild(tr);
-    });
+    var sp=fSport.value, st=fStatus.value;
+    var shown=ALL.filter(function(p){ return (!sp||p.sport===sp)&&(!st||(st==='open'?isOpen(p):p.status===st)); });
+    var open=shown.filter(isOpen).sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:0;});
+    var done=shown.filter(function(p){return !isOpen(p);}).sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:0;});
+    var h='';
+    if(open.length){
+      h+='<div class="group-h"><span>Upcoming</span><span>'+open.length+'</span></div>';
+      if(open.some(function(p){return p.status==='conditional';})) h+='<p class="note">Picks marked <b>Conditional</b> aren\'t bets yet. Each gets a go / no-go call about an hour before kickoff, and this page updates when it\'s made.</p>';
+      h+='<div class="list">'+open.map(card).join('')+'</div>';
+    }
+    if(done.length){
+      h+='<div class="group-h"><span>Results</span><span>'+done.length+'</span></div><div class="list">'+done.slice(0,limit).map(card).join('')+'</div>';
+      if(done.length>limit) h+='<button class="more" type="button" id="more">Show more ('+(done.length-limit)+')</button>';
+    }
+    out.innerHTML=h||'<div class="empty">No picks match this filter.</div>';
   }
-  fSport.addEventListener('change', render);
-  document.getElementById('fStatus').addEventListener('change', render);
+  out.addEventListener('click',function(e){
+    if(e.target.id==='more'){ limit+=50; render(); return; }
+    var c=e.target.closest('.card.has-detail'); if(!c||!e.target.closest('.row')) return;
+    var o=c.classList.toggle('open'); c.querySelector('.row').setAttribute('aria-expanded',String(o));
+  });
+  fSport.addEventListener('change',function(){limit=25;render();});
+  fStatus.addEventListener('change',function(){limit=25;render();});
   render();
-
-  (function(){
-    function esc(x){ return String(x==null?'':x).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
-    var cd=new Date(); cd.setDate(cd.getDate()-2);
-    var cut=cd.getFullYear()+'-'+String(cd.getMonth()+1).padStart(2,'0')+'-'+String(cd.getDate()).padStart(2,'0');
-    var list=DATA.picks.filter(function(p){ return p.cond && p.date>=cut; }).sort(function(a,b){ return a.date<b.date?-1:a.date>b.date?1:0; });
-    if(!list.length) return;
-    document.getElementById('condWrap').innerHTML=list.map(function(p){
-      var c=p.cond, d=c.decision, cls=d==='GO'?'go':d==='NO-GO'?'nogo':'';
-      var st=d==='GO'?'<span class="badge win">GO — bet placed</span>':d==='NO-GO'?'<span class="badge void">NO-GO — no bet</span>':'<span class="badge conditional">Waiting on call</span>';
-      var u=d==='NO-GO'?'0u<span class="s">no bet</span>':p.units+'u<span class="s">'+(d==='GO'?'placed':'if GO')+'</span>';
-      return '<div class="cond-card '+cls+'"><div class="cond-top"><div><div class="cond-sub">'+esc(p.matchup)+' · '+p.date+'</div><div class="cond-sel">'+esc(p.selection.replace(/ — CONDITIONAL.*$/,''))+'</div><div style="margin-top:4px">'+st+'</div></div><div class="cond-units mono">'+u+'</div></div>'+
-        '<div class="cond-grid"><div class="k">Call time</div><div>'+esc(c.callAt)+'</div><div class="k go">GO if</div><div>'+esc(c.go)+'</div><div class="k nogo">NO-GO if</div><div>'+esc(c.noGo)+'</div><div class="k">Price</div><div>'+esc(c.price)+' (now '+fmtOdds(p.odds)+' @ '+esc(p.book)+')</div>'+(c.why?'<div class="k">Why</div><div>'+esc(c.why)+'</div>':'')+(c.reading?'<div class="k">Reading</div><div><b>'+esc(c.reading)+'</b></div>':'')+'</div></div>';
-    }).join('');
-    document.getElementById('condSection').hidden=false;
-  })();
 })();
 </script>
 </body>
