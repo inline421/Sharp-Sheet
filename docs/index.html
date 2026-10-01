@@ -99,7 +99,8 @@
   .sumbar b{color:var(--text-1); font-variant-numeric:tabular-nums;}
   .pos{color:var(--good)!important;} .neg{color:var(--bad)!important;}
   .group-h .gs{font-weight:600; letter-spacing:.02em; text-transform:none; font-size:.74rem;}
-  .pl{font-variant-numeric:tabular-nums; font-weight:650; margin-left:6px;}
+  .badge.big{font-size:.86rem; font-weight:750; padding:4px 10px; font-variant-numeric:tabular-nums;}
+  .mg{display:block; text-align:right; font-size:.7rem; color:var(--muted); margin-top:1px;}
   footer{margin-top:24px; font-size:.72rem; color:var(--muted); text-align:center;}
 </style>
 </head>
@@ -183,13 +184,13 @@
     if(p.cond&&p.cond.decision==='GO'&&p.status==='pending') return '<span class="badge go">GO · Pending</span>';
     if(p.cond&&p.cond.decision==='NO-GO') return '<span class="badge nogo">No-go</span>';
     var m={win:'Win',loss:'Loss',push:'Push',pending:'Pending',void:'Void'}[p.status]||p.status;
-    var mg=(p.status==='win'||p.status==='loss')&&p.margin!=null?' '+(p.status==='win'?'+':'')+p.margin+(p.marginUnit?' '+p.marginUnit:''):'';
-    return '<span class="badge '+esc(p.status)+'">'+m+mg+'</span>';
+    if(p.status==='win'||p.status==='loss') return '<span class="badge big '+p.status+'">'+m+' '+u(pl(p))+'</span>';
+    return '<span class="badge '+esc(p.status)+'">'+m+'</span>';
   }
   function stake(p){
     if(p.cond&&p.cond.decision==='NO-GO') return '<span class="stake">No bet</span>';
-    var v=pl(p), plh=(p.status==='win'||p.status==='loss')?'<span class="pl '+(v>0?'pos':'neg')+'">'+u(v)+'</span>':'';
-    return '<span class="stake">'+esc(tierLabel(p.tier))+' · <b>'+p.units+'u</b>'+(p.status==='conditional'?' if GO':'')+plh+'</span>';
+    var mg=(p.status==='win'||p.status==='loss')&&p.margin!=null?'<span class="mg">'+(p.status==='win'?'by ':'short ')+String(p.margin).replace('-','')+(p.marginUnit?' '+p.marginUnit:'')+'</span>':'';
+    return '<span class="stake">'+esc(tierLabel(p.tier))+' · <b>'+p.units+'u</b>'+(p.status==='conditional'?' if GO':'')+mg+'</span>';
   }
   function detail(p){
     var c=p.cond; if(!c) return '';
