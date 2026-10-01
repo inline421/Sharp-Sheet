@@ -82,6 +82,24 @@
   .note{font-size:.78rem; color:var(--text-2); background:var(--warn-soft); border-radius:10px; padding:8px 10px; margin:0 0 8px;}
   .more{display:block; width:100%; margin-top:10px; padding:10px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text-2); font:inherit; font-size:.82rem; cursor:pointer;}
   .empty{padding:28px; text-align:center; color:var(--muted); font-size:.85rem;}
+  .ctl{display:flex; gap:8px; margin-bottom:10px;}
+  .ctl-btn{flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:9px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text-1); font:inherit; font-size:.85rem; font-weight:600; cursor:pointer;}
+  .ctl-btn .n{background:var(--accent); color:#fff; border-radius:999px; font-size:.68rem; padding:1px 7px;}
+  .ctl-btn.reset{flex:0 0 auto; font-weight:500; color:var(--text-2);}
+  .panel{display:none; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:4px 12px 12px; margin-bottom:12px;}
+  .panel.open{display:block;}
+  .f-row{padding-top:10px;}
+  .f-label{font-size:.64rem; font-weight:650; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); margin-bottom:6px;}
+  .chips{display:flex; flex-wrap:wrap; gap:6px;}
+  .chips::-webkit-scrollbar{display:none;}
+  .chip{flex:0 0 auto; border:1px solid var(--border); background:var(--plane); color:var(--text-2); border-radius:999px; padding:6px 12px; font:inherit; font-size:.8rem; font-weight:550; cursor:pointer; white-space:nowrap;}
+  .chip.on{background:var(--text-1); color:var(--surface); border-color:var(--text-1);}
+  .panel select{width:100%;}
+  .sumbar{display:flex; flex-wrap:wrap; gap:4px 14px; align-items:baseline; font-size:.8rem; color:var(--text-2); background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:9px 12px; margin-bottom:6px;}
+  .sumbar b{color:var(--text-1); font-variant-numeric:tabular-nums;}
+  .pos{color:var(--good)!important;} .neg{color:var(--bad)!important;}
+  .group-h .gs{font-weight:600; letter-spacing:.02em; text-transform:none; font-size:.74rem;}
+  .pl{font-variant-numeric:tabular-nums; font-weight:650; margin-left:6px;}
   footer{margin-top:24px; font-size:.72rem; color:var(--muted); text-align:center;}
 </style>
 </head>
@@ -92,17 +110,12 @@
     <div class="asof" id="asof"></div>
   </header>
   <div class="tiles" id="tiles"></div>
-  <div class="filters">
-    <select id="fSport" aria-label="Sport"><option value="">All sports</option></select>
-    <select id="fStatus" aria-label="Result">
-      <option value="">All picks</option>
-      <option value="open">Upcoming</option>
-      <option value="win">Wins</option>
-      <option value="loss">Losses</option>
-      <option value="push">Pushes</option>
-      <option value="void">Void</option>
-    </select>
+  <div class="ctl">
+    <button class="ctl-btn" type="button" id="fbtn" aria-expanded="false">Filter &amp; sort <span class="n" id="fcount" hidden></span></button>
+    <button class="ctl-btn reset" type="button" id="freset" hidden>Reset</button>
   </div>
+  <div class="panel" id="panel"></div>
+  <div class="sumbar" id="sumbar"></div>
   <div id="out"></div>
   <footer>Picks and results only. Personal tracking, not betting advice. Odds shown are as taken at the time of the pick.</footer>
 </div>
