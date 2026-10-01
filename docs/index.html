@@ -131,18 +131,52 @@
   function niceDate(d){ var dt=new Date(d+'T12:00:00'); return dt.toLocaleDateString('en-US',{weekday:'short',month:'numeric',day:'numeric'}); }
   function cleanSel(p){ return String(p.selection).replace(/\s+—\s+CONDITIONAL.*$/,''); }
   function isOpen(p){ return p.status==='pending'||p.status==='conditional'; }
+  function mkt(p){ var m=String(p.market||''); return /^Total/.test(m)?'Total':m; }
+  function pl(p){ if(p.status==='win') return p.units*(p.odds>0?p.odds/100:100/Math.abs(p.odds)); if(p.status==='loss') return -p.units; return 0; }
+  function u(n){ return (n>0?'+':n<0?'−':'')+Math.abs(n).toFixed(2)+'u'; }
+  function wk(d){ var dt=new Date(d+'T12:00:00'); var day=(dt.getDay()+6)%7; dt.setDate(dt.getDate()-day); return dt; }
+  function groupKey(p,g){ if(g==='day') return p.date; if(g==='week'){ var m=wk(p.date); return m.getFullYear()+'-'+String(m.getMonth()+1).padStart(2,'0')+'-'+String(m.getDate()).padStart(2,'0'); } return p.date.slice(0,7); }
+  function groupLabel(k,g){ if(g==='day') return niceDate(k); if(g==='week'){ var a=new Date(k+'T12:00:00'), b=new Date(a); b.setDate(b.getDate()+6); return 'Week of '+(a.getMonth()+1)+'/'+a.getDate()+'–'+(b.getMonth()+1)+'/'+b.getDate(); } var dt=new Date(k+'-15T12:00:00'); return dt.toLocaleDateString('en-US',{month:'long',year:'numeric'}); }
+  function stats(list){ var g=list.filter(function(p){return p.status==='win'||p.status==='loss'||p.status==='push';}); var w=g.filter(function(p){return p.status==='win';}).length, l=g.filter(function(p){return p.status==='loss';}).length, pu=g.length-w-l; var risk=g.reduce(function(a,p){return a+p.units;},0), net=g.reduce(function(a,p){return a+pl(p);},0); return {w:w,l:l,pu:pu,n:g.length,net:net,roi:risk?net/risk*100:null}; }
 
   document.getElementById('asof').textContent='Updated '+s.asOf;
   var tiles=document.getElementById('tiles');
   function tile(l,v,c){ tiles.insertAdjacentHTML('beforeend','<div class="tile"><div class="label">'+l+'</div><div class="value'+(c?' '+c:'')+'">'+v+'</div></div>'); }
   tile('Record',s.record);
   tile('Net units',(s.netUnits>0?'+':'')+s.netUnits.toFixed(2)+'u',s.netUnits>0?'good':s.netUnits<0?'bad':'');
-  var nOpen=ALL.filter(isOpen).length;
-  tile('Upcoming',nOpen);
+  tile('Upcoming',ALL.filter(isOpen).length);
   tile('Unit size','$'+s.unit.toLocaleString());
 
-  var fSport=document.getElementById('fSport'), fStatus=document.getElementById('fStatus');
-  Array.from(new Set(ALL.map(function(p){return p.sport;}))).sort().forEach(function(sp){ fSport.insertAdjacentHTML('beforeend','<option value="'+esc(sp)+'">'+esc(sp)+'</option>'); });
+  var DEF={sport:'all',result:'all',tier:'all',market:'all',date:'all',sort:'new',group:'none'};
+  var F=Object.assign({},DEF);
+  try{ var sv=JSON.parse(localStorage.getItem('ss-pub-f')||'null'); if(sv) F=Object.assign(F,sv); }catch(e){}
+  function save(){ try{ localStorage.setItem('ss-pub-f',JSON.stringify(F)); }catch(e){} }
+  function uniq(fn){ var o=[]; ALL.forEach(function(p){ var v=fn(p); if(o.indexOf(v)<0) o.push(v); }); return o; }
+  var sports=uniq(function(p){return p.sport;}).sort();
+  var tiersPresent=(DATA.tiers||[]).filter(function(t){ return ALL.some(function(p){return p.tier===t.key;}); });
+  var markets=uniq(mkt).sort();
+  var dates=uniq(function(p){return p.date;}).sort().reverse();
+  var OPTS={
+    sport:[['all','All']].concat(sports.map(function(x){return [x,x];})),
+    result:[['all','All'],['open','Upcoming'],['win','Wins'],['loss','Losses'],['push','Push'],['void','Void']],
+    tier:[['all','All']].concat(tiersPresent.map(function(t){return [t.key,t.label+' · '+t.units+'u'];})),
+    market:[['all','All']].concat(markets.map(function(x){return [x,x];})),
+    sort:[['new','Newest'],['old','Oldest'],['units','Biggest bets'],['best','Best P/L'],['worst','Worst P/L'],['odds','Longest odds']],
+    group:[['none','None'],['day','Day'],['week','Week'],['month','Month']]
+  };
+  var LABELS={sport:'Sport',result:'Result',tier:'Bet size',market:'Bet type',sort:'Sort by',group:'Group by'};
+  var panel=document.getElementById('panel');
+  function chipsRow(k){ return '<div class="f-row"><div class="f-label">'+LABELS[k]+'</div><div class="chips">'+OPTS[k].map(function(o){ return '<button type="button" class="chip'+(F[k]===o[0]?' on':'')+'" data-k="'+k+'" data-v="'+esc(o[0])+'">'+esc(o[1])+'</button>'; }).join('')+'</div></div>'; }
+  function buildPanel(){
+    panel.innerHTML=chipsRow('sport')+chipsRow('result')+chipsRow('tier')+chipsRow('market')+
+      '<div class="f-row"><div class="f-label">Date</div><select id="fdate"><option value="all">All dates</option>'+dates.map(function(d){return '<option value="'+d+'"'+(F.date===d?' selected':'')+'>'+niceDate(d)+'</option>';}).join('')+'</select></div>'+
+      chipsRow('sort')+chipsRow('group');
+  }
+  panel.addEventListener('click',function(e){ var b=e.target.closest('.chip'); if(!b) return; F[b.dataset.k]=b.dataset.v; save(); buildPanel(); render(); });
+  panel.addEventListener('change',function(e){ if(e.target.id==='fdate'){ F.date=e.target.value; save(); render(); } });
+  var fbtn=document.getElementById('fbtn');
+  fbtn.addEventListener('click',function(){ var o=panel.classList.toggle('open'); fbtn.setAttribute('aria-expanded',String(o)); });
+  document.getElementById('freset').addEventListener('click',function(){ F=Object.assign({},DEF); save(); buildPanel(); render(); });
 
   function badge(p){
     if(p.status==='conditional'){ var d=p.cond&&p.cond.decision; return d==='GO'?'<span class="badge go">GO</span>':d==='NO-GO'?'<span class="badge nogo">No-go</span>':'<span class="badge conditional">Conditional</span>'; }
@@ -154,8 +188,8 @@
   }
   function stake(p){
     if(p.cond&&p.cond.decision==='NO-GO') return '<span class="stake">No bet</span>';
-    var u='<b>'+p.units+'u</b>';
-    return '<span class="stake">'+esc(tierLabel(p.tier))+' · '+u+(p.status==='conditional'?' if GO':'')+'</span>';
+    var v=pl(p), plh=(p.status==='win'||p.status==='loss')?'<span class="pl '+(v>0?'pos':'neg')+'">'+u(v)+'</span>':'';
+    return '<span class="stake">'+esc(tierLabel(p.tier))+' · <b>'+p.units+'u</b>'+(p.status==='conditional'?' if GO':'')+plh+'</span>';
   }
   function detail(p){
     var c=p.cond; if(!c) return '';
@@ -177,12 +211,27 @@
       '<div class="r3"><span class="odds"><b>'+fmtOdds(p.odds)+'</b> · '+esc(p.book)+'</span>'+stake(p)+'</div>'+hint+
       '</button>'+(det?'<div class="detail">'+det+'</div>':'')+'</div>';
   }
-  var out=document.getElementById('out'), limit=25;
+  function sorter(k){ return {
+    'new':function(a,b){return a.date<b.date?1:a.date>b.date?-1:0;},
+    'old':function(a,b){return a.date<b.date?-1:a.date>b.date?1:0;},
+    'units':function(a,b){return b.units-a.units||(a.date<b.date?1:-1);},
+    'best':function(a,b){return pl(b)-pl(a);},
+    'worst':function(a,b){return pl(a)-pl(b);},
+    'odds':function(a,b){return b.odds-a.odds;}
+  }[k]; }
+  var out=document.getElementById('out'), limit=40;
+  function statLine(st){ return st.n?(st.w+'-'+st.l+(st.pu?'-'+st.pu:'')+' · <span class="'+(st.net>0?'pos':st.net<0?'neg':'')+'">'+u(st.net)+'</span>'):''; }
   function render(){
-    var sp=fSport.value, st=fStatus.value;
-    var shown=ALL.filter(function(p){ return (!sp||p.sport===sp)&&(!st||(st==='open'?isOpen(p):p.status===st)); });
-    var open=shown.filter(isOpen).sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:0;});
-    var done=shown.filter(function(p){return !isOpen(p);}).sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:0;});
+    var active=['sport','result','tier','market','date'].filter(function(k){return F[k]!==DEF[k];}).length+(F.sort!==DEF.sort?1:0)+(F.group!==DEF.group?1:0);
+    var fc=document.getElementById('fcount'); fc.hidden=!active; fc.textContent=active; document.getElementById('freset').hidden=!active;
+    var shown=ALL.filter(function(p){
+      return (F.sport==='all'||p.sport===F.sport)&&(F.tier==='all'||p.tier===F.tier)&&(F.market==='all'||mkt(p)===F.market)&&(F.date==='all'||p.date===F.date)&&
+        (F.result==='all'||(F.result==='open'?isOpen(p):p.status===F.result));
+    });
+    var st=stats(shown);
+    document.getElementById('sumbar').innerHTML='<span>Showing <b>'+shown.length+'</b></span>'+(st.n?'<span>Record <b>'+st.w+'-'+st.l+(st.pu?'-'+st.pu:'')+'</b></span><span>Net <b class="'+(st.net>0?'pos':st.net<0?'neg':'')+'">'+u(st.net)+'</b></span><span>ROI <b class="'+(st.roi>0?'pos':st.roi<0?'neg':'')+'">'+(st.roi>0?'+':'')+st.roi.toFixed(1)+'%</b></span>':'<span>No graded picks in this view</span>');
+    var open=shown.filter(isOpen).sort(sorter('old'));
+    var done=shown.filter(function(p){return !isOpen(p);}).sort(sorter(F.sort));
     var h='';
     if(open.length){
       h+='<div class="group-h"><span>Upcoming</span><span>'+open.length+'</span></div>';
@@ -190,19 +239,23 @@
       h+='<div class="list">'+open.map(card).join('')+'</div>';
     }
     if(done.length){
-      h+='<div class="group-h"><span>Results</span><span>'+done.length+'</span></div><div class="list">'+done.slice(0,limit).map(card).join('')+'</div>';
-      if(done.length>limit) h+='<button class="more" type="button" id="more">Show more ('+(done.length-limit)+')</button>';
+      if(F.group==='none'){
+        h+='<div class="group-h"><span>Results</span><span class="gs">'+statLine(stats(done))+'</span></div><div class="list">'+done.slice(0,limit).map(card).join('')+'</div>';
+        if(done.length>limit) h+='<button class="more" type="button" id="more">Show more ('+(done.length-limit)+')</button>';
+      } else {
+        var keys=[], by={};
+        done.slice().sort(sorter(F.sort==='old'?'old':'new')).forEach(function(p){ var k=groupKey(p,F.group); if(!by[k]){by[k]=[];keys.push(k);} by[k].push(p); });
+        keys.forEach(function(k){ var list=by[k].sort(sorter(F.sort)); h+='<div class="group-h"><span>'+esc(groupLabel(k,F.group))+'</span><span class="gs">'+statLine(stats(list))+'</span></div><div class="list">'+list.map(card).join('')+'</div>'; });
+      }
     }
-    out.innerHTML=h||'<div class="empty">No picks match this filter.</div>';
+    out.innerHTML=h||'<div class="empty">No picks match these filters.</div>';
   }
   out.addEventListener('click',function(e){
-    if(e.target.id==='more'){ limit+=50; render(); return; }
+    if(e.target.id==='more'){ limit+=60; render(); return; }
     var c=e.target.closest('.card.has-detail'); if(!c||!e.target.closest('.row')) return;
     var o=c.classList.toggle('open'); c.querySelector('.row').setAttribute('aria-expanded',String(o));
   });
-  fSport.addEventListener('change',function(){limit=25;render();});
-  fStatus.addEventListener('change',function(){limit=25;render();});
-  render();
+  buildPanel(); render();
 })();
 </script>
 </body>
