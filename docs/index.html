@@ -58,6 +58,18 @@ tr.detail[hidden]{display:none!important}
 </table>
 </div>
 </section>
+<section id="heavySection">
+<div class="eyebrow">Heavy odds — parlay legs only, no units<span class="rule"></span></div>
+<div class="chart-note" style="margin-bottom:8px">Strong likes priced worse than -150. Listed for parlays; never staked on their own and not counted in the record.</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Kickoff</th><th>Leg</th><th>Odds · Book</th><th>Win %</th></tr></thead>
+<tbody id="heavyBody"></tbody>
+</table>
+</div>
+<script id="heavy-data" type="application/json">[{"kick": "Mon 8:15 PM ET", "date": "2026-10-26", "game": "DAL @ PHI", "leg": "Dallas does NOT win the 1st half by 7 or more", "odds": -178, "book": "Kalshi", "win": 70}, {"kick": "Mon 8:15 PM ET", "date": "2026-10-26", "game": "DAL @ PHI", "leg": "Dallas does NOT win the 1st half by 10 or more", "odds": -300, "book": "Kalshi", "win": 81}]</script>
+<script>!function(){try{var h=JSON.parse(document.getElementById("heavy-data").textContent),b=document.getElementById("heavyBody"),d=new Date(Date.now()-5*36e5).toISOString().slice(0,10);h=h.filter(function(x){return x.date>=d});if(!h.length){document.getElementById("heavySection").style.display="none";return}b.innerHTML=h.map(function(x){return "<tr><td class=\"mono\">"+x.kick+"</td><td>"+x.leg+"<div class=\"chart-note\">"+x.game+"</div></td><td class=\"mono\">"+(x.odds>0?"+":"")+x.odds+" "+x.book+"</td><td class=\"mono\">"+x.win+"%</td></tr>"}).join("")}catch(e){}}();</script>
+</section>
 <section>
 <div class="eyebrow">Season to date — graded<span class="rule"></span></div>
 <div class="stat-grid" id="statGrid"></div>
