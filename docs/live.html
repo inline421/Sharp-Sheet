@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Live Props</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+:root{--bg:#eef1ec;--card:#fff;--fg:#1b241f;--muted:#5b6a61;--line:#d9e0da;--accent:#2b6b4a;--soft:#e1efe6;
+--hit:#1f7a46;--dead:#b3352b;--warn:#a8650a;--bar:#d9e0da;color-scheme:light;
+--fd:"Oswald","Arial Narrow",sans-serif;--fb:"Source Sans 3",system-ui,sans-serif;--fm:"IBM Plex Mono",ui-monospace,monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#111814;--card:#19221d;--fg:#e6ede8;--muted:#9baba1;--line:#2a362f;--accent:#6cc795;--soft:#1f3328;
+--hit:#6cc795;--dead:#ef7a6f;--warn:#f0b04e;--bar:#2a362f;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.4 var(--fb);
+padding:max(12px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) 40px max(16px,env(safe-area-inset-left))}
+.wrap{max-width:640px;margin:0 auto;display:grid;gap:14px}
+h1{font:600 30px var(--fd);text-transform:uppercase;letter-spacing:.02em;margin:0}
+h2{font:600 13px var(--fb);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:6px 0 0}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.asof{font-size:13px;color:var(--muted)}
+button{font:600 13px var(--fb);border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:8px;padding:6px 10px;cursor:pointer}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sum{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;display:grid;gap:2px}
+.sum b{font:600 22px var(--fd)}
+.list{display:grid;gap:8px}
+.row{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:6px;border-left:4px solid var(--line)}
+.row.hit{border-left-color:var(--hit)}.row.dead{border-left-color:var(--dead)}.row.live{border-left-color:var(--warn)}
+.r1{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.nm{font-weight:700;min-width:0}
+.val{font:600 22px var(--fd);font-variant-numeric:tabular-nums;white-space:nowrap}
+.val small{font:500 14px var(--fb);color:var(--muted)}
+.bar{height:8px;background:var(--bar);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);width:0}
+.row.hit .bar i{background:var(--hit)}.row.dead .bar i{background:var(--dead)}
+.r3{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--muted);flex-wrap:wrap}
+.pill{font:700 11px var(--fb);letter-spacing:.05em;text-transform:uppercase;border-radius:5px;padding:2px 6px}
+.pill.hit{background:color-mix(in srgb,var(--hit) 18%,transparent);color:var(--hit)}
+.pill.dead{background:color-mix(in srgb,var(--dead) 18%,transparent);color:var(--dead)}
+.pill.live{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+.pill.pre{background:var(--soft);color:var(--accent)}
+.note{font-size:13px;color:var(--muted)}
+.err{font-size:13px;background:color-mix(in srgb,var(--warn) 16%,transparent);border-radius:8px;padding:6px 9px}
+</style>
+</head><body>
+<div class="wrap">
+<div class="top"><h1>Live Props</h1><button id="rf" type="button">Refresh</button></div>
+<div class="asof" id="asof">Loading live stats…</div>
+<div class="err" id="err" hidden></div>
+<h2>My Kalshi combo</h2>
+<div class="sum" id="combo"></div>
+<div class="list" id="mine"></div>
+<h2>Sharp Sheet props today</h2>
+<div class="list" id="ss"></div>
+<p class="note">Stats from ESPN live box scores, pulled by your browser every 30 seconds while this page is open (paused when hidden). "Hit" locks the moment an Over clears; Unders lock only at the final. Official grades post the next morning.</p>
+</div>
+<script>
+const POLL=30000;
+const ESPN="https://site.api.espn.com/apis/site/v2/sports/football/nfl/";
+const MINE=[
+{name:"James Cook",team:"BUF",stat:"rush_yds",side:"over",need:60,label:"60+ rush yds"},
+{name:"Ryan Flournoy",team:"DAL",stat:"rec_yds",side:"over",need:20,label:"20+ rec yds"},
+{name:"Justice Hill",team:"BAL",stat:"rec",side:"over",need:2,label:"2+ receptions"},
+{name:"Bucky Irving",team:"TB",stat:"rush_att",side:"over",need:14,label:"14+ rush att"},
+{name:"Jaylen Warren",team:"PIT",stat:"rush_att",side:"over",need:12,label:"12+ rush att"},
+{name:"Emmett Johnson",team:"KC",stat:"rush_att",side:"over",need:16,label:"16+ rush att"},
+{name:"Jordyn Tyson",team:"NO",stat:"rec",side:"over",need:4,label:"4+ receptions"}
+];
+const STATMAP={"rush attempts":"rush_att","rushing yards":"rush_yds","receptions":"rec","receiving yards":"rec_yds","longest reception":"long_rec","pass attempts":"pass_att","passing yards":"pass_yds"};
+const UNIT={rush_att:"car",rush_yds:"yds",rec:"rec",rec_yds:"yds",long_rec:"long",pass_att:"att",pass_yds:"yds"};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const norm=s=>String(s||"").toLowerCase().replace(/\b(jr|sr|ii|iii|iv)\b\.?/g,"").replace(/[^a-z ]/g,"").replace(/\s+/g," ").trim();
+let events=[], box={}, ssLegs=[], timer=null;
+function todayET(){const p=new Intl.DateTimeFormat("en-CA",{timeZone:"America/New_York",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());return p.replace(/-/g,"");}
+function parseSharp(picks){
+const t=todayET(),out=[];
+for(const p of picks){
+if(p.status!=="pending"||String(p.date||"").replace(/-/g,"")!==t) continue;
+let s=String(p.selection||"").replace(/^Condition met:[^)]*\)\.\s*/i,"");
+let m=s.match(/^(.+?)\s+(OVER|UNDER)\s+([\d.]+)\s+(rush attempts|rushing yards|receptions|receiving yards|longest reception|pass attempts|passing yards)/i);
+let leg=null;
+if(m) leg={name:m[1],side:m[2].toLowerCase(),line:parseFloat(m[3]),stat:STATMAP[m[4].toLowerCase()]};
+else if((m=s.match(/^(.+?)\s+(\d+)\+\s+(rush attempts|rushing yards|receptions|receiving yards|longest reception|pass attempts|passing yards)/i))) leg={name:m[1],side:"over",line:parseFloat(m[2])-0.5,stat:STATMAP[m[3].toLowerCase()]};
+if(!leg) continue;
+leg.need=leg.side==="over"?Math.floor(leg.line)+1:null;
+leg.label=(leg.side==="over"?"Over ":"Under ")+leg.line+" "+m[m.length-1].toLowerCase()+" · "+(p.odds>0?"+":"")+p.odds+" "+(p.book||"");
+leg.matchup=p.matchup; leg.pct=p.winPct; out.push(leg);
+}
+return out;
+}
+async function loadSharp(){
+const r=await fetch("./?v="+Date.now(),{cache:"no-store"}); const h=await r.text();
+const m=h.match(/<script id="sharp-data"[^>]*>([\s\S]*?)<\/script>/); if(!m) throw new Error("no data");
+ssLegs=parseSharp(JSON.parse(m[1]).picks||[]);
+}
+function eventFor(leg){
+const toks=leg.team?[leg.team]:String(leg.matchup||"").replace(/\(.*?\)/g,"").split(/\s*@\s*|\s+vs\.?\s+/i).map(x=>x.trim()).filter(Boolean);
+for(const e of events){
+const cs=e.competitions[0].competitors.map(c=>c.team);
+if(toks.some(tk=>cs.some(t=>t.abbreviation===tk.toUpperCase()||norm(t.location)===norm(tk)||norm(t.displayName)===norm(tk)||norm(t.shortDisplayName)===norm(tk)))) return e;
+}
+return null;
+}
+async function loadScores(){
+const r=await fetch(ESPN+"scoreboard?dates="+todayET(),{cache:"no-store"}); const j=await r.json(); events=j.events||[];
+}
+async function loadBoxes(legs){
+const need=new Set();
+for(const l of legs){const e=eventFor(l); if(!e) continue; const st=e.status.type.state; if(st==="pre") continue;
+if(st==="post"&&box[e.id]&&box[e.id].final) continue; need.add(e.id);}
+await Promise.all([...need].map(async id=>{
+try{const r=await fetch(ESPN+"summary?event="+id,{cache:"no-store"}); const j=await r.json();
+const ev=events.find(x=>x.id===id); box[id]={players:(j.boxscore&&j.boxscore.players)||[],final:ev&&ev.status.type.state==="post"};}catch(e){}
+}));
+}
+function statOf(leg,e){
+const b=box[e.id]; if(!b) return null; const want=norm(leg.name);
+const cat={rush_att:["rushing","rushingAttempts"],rush_yds:["rushing","rushingYards"],rec:["receiving","receptions"],rec_yds:["receiving","receivingYards"],long_rec:["receiving","longReception"],pass_att:["passing","completions/passingAttempts"],pass_yds:["passing","passingYards"]}[leg.stat];
+let found=false;
+for(const t of b.players){for(const c of t.statistics||[]){
+for(const a of c.athletes||[]){ if(norm(a.athlete.displayName)!==want) continue; found=true;
+if(c.name!==cat[0]) continue; const k=(c.keys||[]).indexOf(cat[1]); if(k<0) continue;
+let v=a.stats[k]; if(cat[1].includes("/")) v=String(v).split("/")[1]; return parseFloat(v)||0; }}}
+return found?0:(b.players.length?0:null);
+}
+function evaluate(leg){
+const e=eventFor(leg); let st="pre",val=null,clock="Not started";
+if(e){const s=e.status.type; clock=s.state==="pre"?new Date(e.date).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",timeZone:"America/New_York"})+" ET":s.shortDetail;
+if(s.state!=="pre"){val=statOf(leg,e); if(val==null) val=0;
+const over=leg.side==="over"; const need=over?leg.need:leg.line;
+if(over&&val>=need){st="hit";} else if(!over&&val>need){st="dead";}
+else if(s.state==="post"){st=over?"dead":"hit";} else st="live";}}
+const target=leg.side==="over"?leg.need:leg.line;
+const pct=val==null?0:Math.min(100,Math.round(100*val/Math.max(target,1)));
+return {e,st,val,clock,target,pct};
+}
+const PILL={hit:["hit","Hit"],dead:["dead","Dead"],live:["live","Live"],pre:["pre","Upcoming"]};
+function rowHTML(leg){
+const r=evaluate(leg); const [pc,pt]=PILL[r.st];
+let need="";
+if(r.st==="live") need=leg.side==="over"?`needs ${r.target-r.val} more`:`${Math.max(0,leg.line-r.val)} of cushion`;
+return {st:r.st,html:`<div class="row ${r.st}"><div class="r1"><span class="nm">${esc(leg.name)}</span><span class="val">${r.val==null?"–":r.val}<small> / ${leg.side==="over"?r.target+"+":"u"+leg.line} ${UNIT[leg.stat]}</small></span></div>
+<div class="bar"><i style="width:${r.pct}%"></i></div>
+<div class="r3"><span>${esc(leg.label)}${leg.pct?` · ${leg.pct}%`:""}</span><span><span class="pill ${pc}">${pt}</span> ${esc(r.clock)}${need?" · "+need:""}</span></div></div>`};
+}
+function render(){
+const mine=MINE.map(rowHTML); $("mine").innerHTML=mine.map(x=>x.html).join("");
+const hit=mine.filter(x=>x.st==="hit").length, dead=mine.filter(x=>x.st==="dead").length, live=mine.filter(x=>x.st==="live").length;
+$("combo").innerHTML=`<b>${dead?"Combo lost":hit===MINE.length?"Combo hit":`${hit} of ${MINE.length} hit`}</b><span>${live} live · ${dead} dead · ${MINE.length-hit-dead-live} upcoming</span>`;
+const ss=ssLegs.map(rowHTML); $("ss").innerHTML=ss.length?ss.map(x=>x.html).join(""):'<div class="note">No Sharp Sheet props found for today.</div>';
+$("asof").textContent="Updated "+new Date().toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",second:"2-digit",timeZone:"America/New_York"})+" ET · every 30 seconds";
+}
+async function tick(){
+try{ $("err").hidden=true;
+await loadScores();
+await loadBoxes([...MINE,...ssLegs]);
+render();
+}catch(e){ $("err").hidden=false; $("err").textContent="Couldn't reach ESPN just now ("+(e.message||e)+"). Retrying in 30 seconds."; }
+}
+async function boot(){
+try{await loadSharp();}catch(e){ssLegs=[];}
+await tick(); schedule();
+}
+function schedule(){clearInterval(timer); timer=setInterval(()=>{if(document.visibilityState==="visible") tick();},POLL);}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible") tick();});
+$("rf").onclick=()=>{loadSharp().catch(()=>{}).then(tick);};
+boot();
+</script>
+</body></html>
