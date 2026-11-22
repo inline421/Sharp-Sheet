@@ -150,31 +150,67 @@ function g(t){return String(null==t?"":t).replace(/[&<>"]/g,function(t){return{"
 #lp .rw.hit .bar i{background:var(--hit)}#lp .rw.dead .bar i{background:var(--dead)}
 #lp .pl{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:5px;padding:2px 6px;background:var(--soft);color:var(--acc)}
 #lp .pl.hit{color:var(--hit)}#lp .pl.dead{color:var(--dead)}#lp .pl.live{color:var(--warn)}
-#lp .err{font-size:13px;border:1px solid var(--warn);border-radius:8px;padding:6px 9px}</style>
+#lp .err{font-size:13px;border:1px solid var(--warn);border-radius:8px;padding:6px 9px}
+#lp details.cb{background:var(--card);border:1px solid var(--lln);border-radius:10px;padding:8px 10px;border-left:4px solid var(--warn)}#lp details.cb.hit{border-left-color:var(--hit)}#lp details.cb.dead{border-left-color:var(--dead);opacity:.75}#lp details.cb summary{display:flex;justify-content:space-between;gap:8px;cursor:pointer;list-style:none}#lp details.cb .list{margin-top:8px}#lp details.cb .rw{border-top:0;border-right:0;border-bottom:0}</style>
 <div id="lp" hidden><div class="w"><div class="top"><h1>Live Props</h1><span><button id="lprf" type="button">Refresh</button> <button id="lpx" type="button">Close</button></span></div>
 <div class="asof" id="lpasof">Loading live stats</div><div class="err" id="lperr" hidden></div>
-<div id="lpminew" hidden><h2>My Kalshi combo</h2><div class="sum" id="lpcombo"></div><div class="list" id="lpmine"></div></div>
+<div id="lpminew" hidden><h2>My Kalshi combos</h2><div class="sum" id="lpcombo"></div><div class="list" id="lpmine"></div></div>
 <h2>Sharp Sheet props today</h2><div class="list" id="lpss"></div>
 <p class="note">Live ESPN box scores, refreshed by your browser every 30 seconds while open. Overs lock as hits the moment they clear; Unders settle at the final. Official grades post the next morning.</p></div></div>
 <script>(function(){
 const POLL=30000;
 const ESPN="https://site.api.espn.com/apis/site/v2/sports/football/nfl/";
-const SEED=[
-{name:"James Cook",team:"BUF",stat:"rush_yds",side:"over",need:60,label:"60+ rush yds"},
-{name:"Ryan Flournoy",team:"DAL",stat:"rec_yds",side:"over",need:20,label:"20+ rec yds"},
-{name:"Justice Hill",team:"BAL",stat:"rec",side:"over",need:2,label:"2+ receptions"},
-{name:"Bucky Irving",team:"TB",stat:"rush_att",side:"over",need:14,label:"14+ rush att"},
-{name:"Jaylen Warren",team:"PIT",stat:"rush_att",side:"over",need:12,label:"12+ rush att"},
-{name:"Emmett Johnson",team:"KC",stat:"rush_att",side:"over",need:16,label:"16+ rush att"},
-{name:"Jordyn Tyson",team:"NO",stat:"rec",side:"over",need:4,label:"4+ receptions"}
+const SEEDV=2;
+const SEED_LEGS={
+p1:{k:"prop",name:"Justice Hill",team:"BAL",stat:"rec",need:2,label:"2+ receptions"},
+p2:{k:"prop",name:"Jordyn Tyson",team:"NO",stat:"rec",need:4,label:"4+ receptions"},
+p3:{k:"prop",name:"Ryan Flournoy",team:"DAL",stat:"rec_yds",need:20,label:"20+ rec yds"},
+p4:{k:"prop",name:"Emmett Johnson",team:"KC",stat:"rush_att",need:16,label:"16+ rush att"},
+p5:{k:"prop",name:"Jaylen Warren",team:"PIT",stat:"rush_att",need:12,label:"12+ rush att"},
+p6:{k:"prop",name:"Bucky Irving",team:"TB",stat:"rush_att",need:14,label:"14+ rush att"},
+p7:{k:"prop",name:"James Cook",team:"BUF",stat:"rush_yds",need:60,label:"60+ rush yds"},
+p8:{k:"prop",name:"James Cook",team:"BUF",stat:"rush_yds",need:70,label:"70+ rush yds"},
+t1:{k:"prop",name:"Emmett Johnson",team:"KC",stat:"td",need:1,label:"1+ TD"},
+t2:{k:"prop",name:"James Cook",team:"BUF",stat:"td",need:1,label:"1+ TD"},
+t3:{k:"prop",name:"D'Andre Swift",team:"CHI",stat:"td",need:1,label:"1+ TD"},
+t4:{k:"prop",name:"Jaylen Warren",team:"PIT",stat:"td",need:1,label:"1+ TD"},
+t5:{k:"prop",name:"Tony Pollard",team:"TEN",stat:"td",need:1,label:"1+ TD"},
+t6:{k:"prop",name:"Kyle Monangai",team:"CHI",stat:"td",need:1,label:"1+ TD"},
+g1:{k:"game",team:"CHI",opp:"NO",per:"1H",op:"over",line:6.5,label:"Bears win 1H by 7+"},
+g2:{k:"game",team:"CHI",opp:"NO",per:"1Q",op:"over",line:2.5,label:"Bears win 1Q by 3+"},
+g3:{k:"game",team:"CHI",opp:"NO",per:"1H",op:"over",line:0,label:"Bears win 1H"},
+g4:{k:"game",team:"BAL",opp:"CAR",per:"G",op:"notover",line:7.5,label:"No: Ravens win by 8+"},
+g5:{k:"game",team:"PHI",opp:"PIT",per:"G",op:"notover",line:7.5,label:"No: Eagles win by 8+"},
+g6:{k:"game",team:"CHI",opp:"NO",per:"G",op:"over",line:0,label:"Bears to win"},
+g7:{k:"game",team:"KC",opp:"ARI",per:"G",op:"over",line:3.5,label:"Chiefs win by 4+"},
+g8:{k:"game",team:"NYG",opp:"JAX",per:"G",op:"notover",line:4.5,label:"No: Giants win by 5+"},
+g9:{k:"game",team:"BUF",opp:"MIA",per:"G",op:"over",line:3.5,label:"Bills win by 4+"}
+};
+const SEED_COMBOS=[
+{cost:763.83,pays:1764.02,legs:["g1","g2"]},
+{cost:250.15,pays:1398.84,legs:["p1","p2","p3","p4","p5","p6","p7"]},
+{cost:1499.79,pays:3439.57,legs:["t1","t2"]},
+{cost:124.94,pays:1891.07,legs:["t1","t2","t3","t4","t5"]},
+{cost:374.28,pays:7796.25,legs:["t1","t2","t6","t4","t5"]},
+{cost:1499.92,pays:2676.65,legs:["p6","p8"]},
+{cost:1499.79,pays:2724.79,legs:["g3","g4","g5"]},
+{cost:1499.88,pays:2764.97,legs:["p1","p3","p7"]},
+{cost:1499.92,pays:3009.02,legs:["p1","p6","p7"]},
+{cost:1499.86,pays:3045.68,legs:["p1","p3","p5"]},
+{cost:1499.68,pays:3392.13,legs:["p5","p6","p7"]},
+{cost:2000,pays:3864.73,legs:["g6","g7","g8","g9"]},
+{cost:1249.90,pays:4950.21,legs:["t1","t2","t5"]},
+{cost:2499.36,pays:6177.41,legs:["t1","t5"]}
 ];
 const STATMAP={"rush attempts":"rush_att","rushing yards":"rush_yds","receptions":"rec","receiving yards":"rec_yds","longest reception":"long_rec","pass attempts":"pass_att","passing yards":"pass_yds"};
-const UNIT={rush_att:"car",rush_yds:"yds",rec:"rec",rec_yds:"yds",long_rec:"long",pass_att:"att",pass_yds:"yds"};
+const UNIT={rush_att:"car",rush_yds:"yds",rec:"rec",rec_yds:"yds",long_rec:"long",pass_att:"att",pass_yds:"yds",td:"TD"};
 const $=id=>document.getElementById("lp"+id);
-let MINE=[];try{MINE=JSON.parse(localStorage.getItem("lpMine")||"[]")}catch(e){}
-if(location.hash==="#live-j"){MINE=SEED;try{localStorage.setItem("lpMine",JSON.stringify(SEED))}catch(e){}}
+let MY=null;try{MY=JSON.parse(localStorage.getItem("lpMy")||"null")}catch(e){}
+if(location.hash==="#live-j"||(MY&&MY.v<SEEDV)){MY={v:SEEDV,legs:SEED_LEGS,combos:SEED_COMBOS};try{localStorage.setItem("lpMy",JSON.stringify(MY))}catch(e){}}
+try{localStorage.removeItem("lpMine")}catch(e){}
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const norm=s=>String(s||"").toLowerCase().replace(/\b(jr|sr|ii|iii|iv)\b\.?/g,"").replace(/[^a-z ]/g,"").replace(/\s+/g," ").trim();
+const money=n=>"$"+Number(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
 let events=[], box={}, ssLegs=[], timer=null;
 function todayET(){const p=new Intl.DateTimeFormat("en-CA",{timeZone:"America/New_York",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());return p.replace(/-/g,"");}
 function parseSharp(picks){
@@ -184,8 +220,8 @@ if(p.status!=="pending"||String(p.date||"").replace(/-/g,"")!==t) continue;
 let s=String(p.selection||"").replace(/^Condition met:[^)]*\)\.\s*/i,"");
 let m=s.match(/^(.+?)\s+(OVER|UNDER)\s+([\d.]+)\s+(rush attempts|rushing yards|receptions|receiving yards|longest reception|pass attempts|passing yards)/i);
 let leg=null;
-if(m) leg={name:m[1],side:m[2].toLowerCase(),line:parseFloat(m[3]),stat:STATMAP[m[4].toLowerCase()]};
-else if((m=s.match(/^(.+?)\s+(\d+)\+\s+(rush attempts|rushing yards|receptions|receiving yards|longest reception|pass attempts|passing yards)/i))) leg={name:m[1],side:"over",line:parseFloat(m[2])-0.5,stat:STATMAP[m[3].toLowerCase()]};
+if(m) leg={k:"prop",name:m[1],side:m[2].toLowerCase(),line:parseFloat(m[3]),stat:STATMAP[m[4].toLowerCase()]};
+else if((m=s.match(/^(.+?)\s+(\d+)\+\s+(rush attempts|rushing yards|receptions|receiving yards|longest reception|pass attempts|passing yards)/i))) leg={k:"prop",name:m[1],side:"over",line:parseFloat(m[2])-0.5,stat:STATMAP[m[3].toLowerCase()]};
 if(!leg) continue;
 leg.need=leg.side==="over"?Math.floor(leg.line)+1:null;
 leg.label=(leg.side==="over"?"Over ":"Under ")+leg.line+" "+m[m.length-1].toLowerCase()+" · "+(p.odds>0?"+":"")+p.odds+" "+(p.book||"");
@@ -195,10 +231,10 @@ return out;
 }
 async function loadSharp(){const el=document.getElementById("sharp-data");ssLegs=el?parseSharp(JSON.parse(el.textContent).picks||[]):[];}
 function eventFor(leg){
-const toks=leg.team?[leg.team]:String(leg.matchup||"").replace(/\(.*?\)/g,"").split(/\s*@\s*|\s+vs\.?\s+/i).map(x=>x.trim()).filter(Boolean);
+const toks=leg.team?[leg.team].concat(leg.opp?[leg.opp]:[]):String(leg.matchup||"").replace(/\(.*?\)/g,"").split(/\s*@\s*|\s+vs\.?\s+/i).map(x=>x.trim()).filter(Boolean);
 for(const e of events){
 const cs=e.competitions[0].competitors.map(c=>c.team);
-if(toks.some(tk=>cs.some(t=>t.abbreviation===tk.toUpperCase()||norm(t.location)===norm(tk)||norm(t.displayName)===norm(tk)||norm(t.shortDisplayName)===norm(tk)))) return e;
+if(toks.some(tk=>cs.some(t=>t.abbreviation===tk.toUpperCase()||(tk==="JAX"&&t.abbreviation==="JAC")||norm(t.location)===norm(tk)||norm(t.displayName)===norm(tk)||norm(t.shortDisplayName)===norm(tk)))) return e;
 }
 return null;
 }
@@ -207,7 +243,7 @@ const r=await fetch(ESPN+"scoreboard?dates="+todayET(),{cache:"no-store"}); cons
 }
 async function loadBoxes(legs){
 const need=new Set();
-for(const l of legs){const e=eventFor(l); if(!e) continue; const st=e.status.type.state; if(st==="pre") continue;
+for(const l of legs){if(l.k!=="prop") continue; const e=eventFor(l); if(!e) continue; const st=e.status.type.state; if(st==="pre") continue;
 if(st==="post"&&box[e.id]&&box[e.id].final) continue; need.add(e.id);}
 await Promise.all([...need].map(async id=>{
 try{const r=await fetch(ESPN+"summary?event="+id,{cache:"no-store"}); const j=await r.json();
@@ -216,45 +252,72 @@ const ev=events.find(x=>x.id===id); box[id]={players:(j.boxscore&&j.boxscore.pla
 }
 function statOf(leg,e){
 const b=box[e.id]; if(!b) return null; const want=norm(leg.name);
+if(leg.stat==="td"){let td=0,found=false;
+for(const t of b.players){for(const c of t.statistics||[]){for(const a of c.athletes||[]){if(norm(a.athlete.displayName)!==want) continue; found=true;
+const key=c.name==="rushing"?"rushingTouchdowns":c.name==="receiving"?"receivingTouchdowns":null; if(!key) continue; const k=(c.keys||[]).indexOf(key); if(k>=0) td+=parseFloat(a.stats[k])||0;}}}
+return td;}
 const cat={rush_att:["rushing","rushingAttempts"],rush_yds:["rushing","rushingYards"],rec:["receiving","receptions"],rec_yds:["receiving","receivingYards"],long_rec:["receiving","longReception"],pass_att:["passing","completions/passingAttempts"],pass_yds:["passing","passingYards"]}[leg.stat];
-let found=false;
 for(const t of b.players){for(const c of t.statistics||[]){
-for(const a of c.athletes||[]){ if(norm(a.athlete.displayName)!==want) continue; found=true;
+for(const a of c.athletes||[]){ if(norm(a.athlete.displayName)!==want) continue;
 if(c.name!==cat[0]) continue; const k=(c.keys||[]).indexOf(cat[1]); if(k<0) continue;
 let v=a.stats[k]; if(cat[1].includes("/")) v=String(v).split("/")[1]; return parseFloat(v)||0; }}}
-return found?0:(b.players.length?0:null);
+return 0;
+}
+function clockOf(e){const s=e.status.type;return s.state==="pre"?new Date(e.date).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",timeZone:"America/New_York"})+" ET":s.shortDetail;}
+function evalGame(leg,e){
+const s=e.status.type, comp=e.competitions[0], per=comp.status&&comp.status.period||e.status.period||0;
+const cs=comp.competitors; const me=cs.find(c=>c.team.abbreviation===leg.team||(leg.team==="JAX"&&c.team.abbreviation==="JAC")); const op=cs.find(c=>c!==me);
+if(!me||!op) return {st:"pre",val:null,clock:clockOf(e),txt:""};
+if(s.state==="pre") return {st:"pre",val:null,clock:clockOf(e),txt:""};
+const q=c=>(c.linescores||[]).map(x=>parseFloat(x.value)||0);
+const pts=(c)=>leg.per==="1Q"?(q(c)[0]||0):leg.per==="1H"?((q(c)[0]||0)+(q(c)[1]||0)):(parseFloat(c.score)||0);
+const m=pts(me)-pts(op);
+const done=s.state==="post"||(leg.per==="1Q"&&per>=2)||(leg.per==="1H"&&(per>=3||s.name==="STATUS_HALFTIME"));
+const ok=leg.op==="over"?m>leg.line:m<=leg.line;
+const st=done?(ok?"hit":"dead"):"live";
+return {st,val:m,clock:clockOf(e),txt:`${leg.team} ${m>0?"+":""}${m} ${leg.per==="G"?"":leg.per}`.trim()+(st==="live"?(ok?" · on track":" · behind"):"")};
 }
 function evaluate(leg){
-const e=eventFor(leg); let st="pre",val=null,clock="Not started",cls="";
-if(e){const s=e.status.type; clock=s.state==="pre"?new Date(e.date).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",timeZone:"America/New_York"})+" ET":s.shortDetail;
+const e=eventFor(leg);
+if(!e) return {st:"pre",val:null,clock:"No game found",target:leg.side==="under"?leg.line:leg.need,pct:0,txt:""};
+if(leg.k==="game"){const r=evalGame(leg,e); return {...r,target:0,pct:r.st==="hit"?100:r.st==="live"?50:0};}
+const s=e.status.type; let st="pre",val=null;
 if(s.state!=="pre"){val=statOf(leg,e); if(val==null) val=0;
-const over=leg.side==="over"; const need=over?leg.need:leg.line;
+const over=leg.side!=="under"; const need=over?leg.need:leg.line;
 if(over&&val>=need){st="hit";} else if(!over&&val>need){st="dead";}
-else if(s.state==="post"){st=over?"dead":"hit";} else st="live";}}
-const target=leg.side==="over"?leg.need:leg.line;
+else if(s.state==="post"){st=over?"dead":"hit";} else st="live";}
+const target=leg.side==="under"?leg.line:leg.need;
 const pct=val==null?0:Math.min(100,Math.round(100*val/Math.max(target,1)));
-return {e,st,val,clock,target,pct};
+let txt=""; if(st==="live") txt=leg.side==="under"?`${Math.max(0,leg.line-val)} of cushion`:`needs ${target-val} more`;
+return {st,val,clock:clockOf(e),target,pct,txt};
 }
 const PILL={hit:["hit","Hit"],dead:["dead","Dead"],live:["live","Live"],pre:["pre","Upcoming"]};
-function rowHTML(leg){
-const r=evaluate(leg); const [pc,pt]=PILL[r.st];
-let need="";
-if(r.st==="live") need=leg.side==="over"?`needs ${r.target-r.val} more`:`${Math.max(0,leg.line-r.val)} of cushion`;
-return {st:r.st,html:`<div class="rw ${r.st}"><div class="r1"><span class="nm">${esc(leg.name)}</span><span class="val">${r.val==null?"–":r.val}<small> / ${leg.side==="over"?r.target+"+":"u"+leg.line} ${UNIT[leg.stat]}</small></span></div>
+function rowHTML(leg,r){
+const [pc,pt]=PILL[r.st];
+const name=leg.k==="game"?leg.label:leg.name;
+const right=leg.k==="game"?(r.val==null?"–":`${r.val>0?"+":""}${r.val}`):`${r.val==null?"–":r.val}<small> / ${leg.side==="under"?"u"+leg.line:r.target+"+"} ${UNIT[leg.stat]}</small>`;
+const sub=leg.k==="game"?(leg.per==="G"?"Full game":leg.per)+" margin":esc(leg.label)+(leg.pct?` · ${leg.pct}%`:"");
+return `<div class="rw ${r.st}"><div class="r1"><span class="nm">${esc(name)}</span><span class="val">${right}</span></div>
 <div class="bar"><i style="width:${r.pct}%"></i></div>
-<div class="r3"><span>${esc(leg.label)}${leg.pct?` · ${leg.pct}%`:""}</span><span><span class="pl ${pc}">${pt}</span> ${esc(r.clock)}${need?" · "+need:""}</span></div></div>`};
+<div class="r3"><span>${sub}</span><span><span class="pl ${pc}">${pt}</span> ${esc(r.clock)}${r.txt?" · "+esc(r.txt):""}</span></div></div>`;
 }
 function render(){
-const mine=MINE.map(rowHTML); $("minew").hidden=!MINE.length; $("mine").innerHTML=mine.map(x=>x.html).join("");
-const hit=mine.filter(x=>x.st==="hit").length, dead=mine.filter(x=>x.st==="dead").length, live=mine.filter(x=>x.st==="live").length;
-if(MINE.length) $("combo").innerHTML=`<b>${dead?"Combo lost":hit===MINE.length?"Combo hit":`${hit} of ${MINE.length} hit`}</b><span>${live} live · ${dead} dead · ${MINE.length-hit-dead-live} upcoming</span>`;
-const ss=ssLegs.map(rowHTML); $("ss").innerHTML=ss.length?ss.map(x=>x.html).join(""):'<div class="note">No Sharp Sheet props found for today.</div>';
+const has=MY&&MY.combos&&MY.combos.length; $("minew").hidden=!has;
+if(has){const R={}; for(const id in MY.legs) R[id]=evaluate(MY.legs[id]);
+let alive=0,won=0,lost=0,stake=0,live$=0,won$=0;
+const cards=MY.combos.map((c,i)=>{const rs=c.legs.map(id=>R[id]); const dead=rs.some(r=>r.st==="dead"); const hit=rs.filter(r=>r.st==="hit").length; const all=hit===rs.length;
+stake+=c.cost; if(dead) lost++; else if(all){won++;won$+=c.pays;} else {alive++;live$+=c.pays;}
+const cls=dead?"dead":all?"hit":"live";
+return `<details class="cb ${cls}"${dead?"":" open"}><summary><b>${money(c.cost)} → ${money(c.pays)}</b><span class="pl ${cls}">${dead?"Lost":all?"Won":hit+" of "+rs.length+" hit"}</span></summary><div class="list">${c.legs.map(id=>rowHTML(MY.legs[id],R[id])).join("")}</div></details>`;});
+$("combo").innerHTML=`<b>${alive} alive · ${won} won · ${lost} lost</b><span>${money(stake)} staked · ${money(live$)} still live · ${money(won$)} won</span>`;
+$("mine").innerHTML=cards.join("");}
+const ss=ssLegs.map(l=>rowHTML(l,evaluate(l))); $("ss").innerHTML=ss.length?ss.join(""):'<div class="note">No Sharp Sheet props found for today.</div>';
 $("asof").textContent="Updated "+new Date().toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",second:"2-digit",timeZone:"America/New_York"})+" ET · every 30 seconds";
 }
 async function tick(){
 try{ $("err").hidden=true;
 await loadScores();
-await loadBoxes([...MINE,...ssLegs]);
+await loadBoxes([...(MY?Object.values(MY.legs):[]),...ssLegs]);
 render();
 }catch(e){ $("err").hidden=false; $("err").textContent="Couldn't reach ESPN just now ("+(e.message||e)+"). Retrying in 30 seconds."; }
 }
