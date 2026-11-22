@@ -277,12 +277,13 @@ const m=pts(me)-pts(op);
 const done=s.state==="post"||(leg.per==="1Q"&&per>=2)||(leg.per==="1H"&&(per>=3||s.name==="STATUS_HALFTIME"));
 const ok=leg.op==="over"?m>leg.line:m<=leg.line;
 const st=done?(ok?"hit":"dead"):"live";
-return {st,val:m,clock:clockOf(e),txt:`${leg.team} ${m>0?"+":""}${m} ${leg.per==="G"?"":leg.per}`.trim()+(st==="live"?(ok?" · on track":" · behind"):"")};
+const cov=Math.round((leg.op==="over"?m-leg.line:leg.line-m)*10)/10;
+return {st,val:cov,clock:clockOf(e),txt:`${leg.team} ${m>0?"+":""}${m}${leg.per==="G"?"":" "+leg.per}`+(st==="live"?(cov>0?` · covering by ${cov}`:` · needs ${Math.abs(cov)} more`):"")};
 }
 function evaluate(leg){
 const e=eventFor(leg);
 if(!e) return {st:"pre",val:null,clock:"No game found",target:leg.side==="under"?leg.line:leg.need,pct:0,txt:""};
-if(leg.k==="game"){const r=evalGame(leg,e); return {...r,target:0,pct:r.st==="hit"?100:r.st==="live"?50:0,poss:possOf(leg,e)};}
+if(leg.k==="game"){const r=evalGame(leg,e); return {...r,target:0,pct:r.st==="hit"?100:r.st==="dead"?0:r.val==null?0:r.val>0?75:Math.max(5,50+r.val*4),poss:possOf(leg,e)};}
 const s=e.status.type; let st="pre",val=null;
 if(s.state!=="pre"){val=statOf(leg,e); if(val==null) val=0;
 const over=leg.side!=="under"; const need=over?leg.need:leg.line;
@@ -297,8 +298,8 @@ const PILL={hit:["hit","Hit"],dead:["dead","Dead"],live:["live","Live"],pre:["pr
 function rowHTML(leg,r){
 const [pc,pt]=PILL[r.st];
 const name=leg.k==="game"?leg.label:leg.name;
-const right=leg.k==="game"?(r.val==null?"–":`${r.val>0?"+":""}${r.val}`):`${r.val==null?"–":r.val}<small> / ${leg.side==="under"?"u"+leg.line:r.target+"+"} ${UNIT[leg.stat]}</small>`;
-const sub=leg.k==="game"?(leg.per==="G"?"Full game":leg.per)+" margin":esc(leg.label)+(leg.pct?` · ${leg.pct}%`:"");
+const right=leg.k==="game"?(r.val==null?"–":`${r.val>0?"+":""}${r.val}<small> ${r.val>0?"covering":"short"}</small>`):`${r.val==null?"–":r.val}<small> / ${leg.side==="under"?"u"+leg.line:r.target+"+"} ${UNIT[leg.stat]}</small>`;
+const sub=leg.k==="game"?(leg.per==="G"?"Full game":leg.per)+" cover":esc(leg.label)+(leg.pct?` · ${leg.pct}%`:"");
 return `<div class="rw ${r.st}"><div class="r1"><span class="nm">${esc(name)}${r.poss?` <span class="po ${r.poss.mine?(r.poss.rz?"rz":"on"):"off"}">${r.poss.mine?"Has ball":esc(r.poss.ab)+" ball"}${r.poss.mine&&r.poss.dd?" · "+esc(r.poss.dd):""}${r.poss.mine&&r.poss.rz?" · Red zone":""}</span>`:""}</span><span class="val">${right}</span></div>
 <div class="bar"><i style="width:${r.pct}%"></i></div>
 <div class="r3"><span>${sub}</span><span><span class="pl ${pc}">${pt}</span> ${esc(r.clock)}${r.txt?" · "+esc(r.txt):""}</span></div></div>`;
