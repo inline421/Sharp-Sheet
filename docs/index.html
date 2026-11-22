@@ -160,7 +160,7 @@ function g(t){return String(null==t?"":t).replace(/[&<>"]/g,function(t){return{"
 <script>(function(){
 const POLL=30000;
 const ESPN="https://site.api.espn.com/apis/site/v2/sports/football/nfl/";
-const SEEDV=2;
+const SEEDV=3;
 const SEED_LEGS={
 p1:{k:"prop",name:"Justice Hill",team:"BAL",stat:"rec",need:2,label:"2+ receptions"},
 p2:{k:"prop",name:"Jordyn Tyson",team:"NO",stat:"rec",need:4,label:"4+ receptions"},
@@ -184,7 +184,9 @@ g5:{k:"game",team:"PHI",opp:"PIT",per:"G",op:"notover",line:7.5,label:"No: Eagle
 g6:{k:"game",team:"CHI",opp:"NO",per:"G",op:"over",line:0,label:"Bears to win"},
 g7:{k:"game",team:"KC",opp:"ARI",per:"G",op:"over",line:3.5,label:"Chiefs win by 4+"},
 g8:{k:"game",team:"NYG",opp:"JAX",per:"G",op:"notover",line:4.5,label:"No: Giants win by 5+"},
-g9:{k:"game",team:"BUF",opp:"MIA",per:"G",op:"over",line:3.5,label:"Bills win by 4+"}
+g9:{k:"game",team:"BUF",opp:"MIA",per:"G",op:"over",line:3.5,label:"Bills win by 4+"},
+p9:{k:"prop",name:"Breece Hall",team:"NYJ",stat:"rec",need:2,label:"2+ receptions"},
+p10:{k:"prop",name:"Ashton Jeanty",team:"LV",stat:"rec",need:3,label:"3+ receptions"}
 };
 const SEED_COMBOS=[
 {cost:763.83,pays:1764.02,legs:["g1","g2"]},
@@ -200,7 +202,9 @@ const SEED_COMBOS=[
 {cost:1499.68,pays:3392.13,legs:["p5","p6","p7"]},
 {cost:2000,pays:3864.73,legs:["g6","g7","g8","g9"]},
 {cost:1249.90,pays:4950.21,legs:["t1","t2","t5"]},
-{cost:2499.36,pays:6177.41,legs:["t1","t5"]}
+{cost:2499.36,pays:6177.41,legs:["t1","t5"]},
+{cost:2499.25,pays:4516.71,legs:["p10","p9"]},
+{cost:0.10,pays:0.18,legs:["p9","p10"]}
 ];
 const STATMAP={"rush attempts":"rush_att","rushing yards":"rush_yds","receptions":"rec","receiving yards":"rec_yds","longest reception":"long_rec","pass attempts":"pass_att","passing yards":"pass_yds"};
 const UNIT={rush_att:"car",rush_yds:"yds",rec:"rec",rec_yds:"yds",long_rec:"long",pass_att:"att",pass_yds:"yds",td:"TD"};
