@@ -151,10 +151,10 @@ function g(t){return String(null==t?"":t).replace(/[&<>"]/g,function(t){return{"
 #lp .pl{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:5px;padding:2px 6px;background:var(--soft);color:var(--acc)}
 #lp .pl.hit{color:var(--hit)}#lp .pl.dead{color:var(--dead)}#lp .pl.live{color:var(--warn)}
 #lp .err{font-size:13px;border:1px solid var(--warn);border-radius:8px;padding:6px 9px}
-#lp details.cb{background:var(--card);border:1px solid var(--lln);border-radius:10px;padding:8px 10px;border-left:4px solid var(--warn)}#lp details.cb.hit{border-left-color:var(--hit)}#lp details.cb.dead{border-left-color:var(--dead);opacity:.75}#lp details.cb summary{display:flex;justify-content:space-between;gap:8px;cursor:pointer;list-style:none}#lp details.cb .list{margin-top:8px}#lp details.cb .rw{border-top:0;border-right:0;border-bottom:0}#lp .ex{font-weight:700;color:var(--lfg)}#lp .cl{cursor:pointer;text-decoration:underline;text-decoration-color:var(--lln);text-underline-offset:3px}#lp #lpmodal{position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.45);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) 24px max(16px,env(safe-area-inset-left))}#lp #lpmodal[hidden]{display:none}#lp .mbox{background:var(--lbg);border-radius:14px;padding:14px;width:100%;max-width:560px;display:grid;gap:10px;margin-top:24px}#lp .chips{display:flex;flex-wrap:wrap;gap:6px}#lp .chips button{border-radius:999px}#lp .chips button[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:var(--lbg)}#lp details.lg>summary{list-style:none;cursor:pointer}#lp details.lg>summary::-webkit-details-marker{display:none}#lp .tie{background:var(--card);border:1px solid var(--lln);border-top:0;border-radius:0 0 10px 10px;padding:8px 12px;font-size:14px;display:grid;gap:4px;margin-top:-4px}#lp .sum span{display:block}</style>
+#lp details.cb{background:var(--card);border:1px solid var(--lln);border-radius:10px;padding:8px 10px;border-left:4px solid var(--warn)}#lp details.cb.hit{border-left-color:var(--hit)}#lp details.cb.dead{border-left-color:var(--dead);opacity:.75}#lp details.cb summary{display:flex;justify-content:space-between;gap:8px;cursor:pointer;list-style:none}#lp details.cb .list{margin-top:8px}#lp details.cb .rw{border-top:0;border-right:0;border-bottom:0}#lp .ex{font-weight:700;color:var(--lfg)}#lp .po{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.03em;border-radius:5px;padding:1px 6px;vertical-align:2px;white-space:nowrap}#lp .po.on{background:color-mix(in srgb,var(--hit) 18%,transparent);color:var(--hit)}#lp .po.rz{background:var(--dead);color:#fff}#lp .po.off{background:var(--lln);color:var(--lmu);font-weight:600}#lp .cl{cursor:pointer;text-decoration:underline;text-decoration-color:var(--lln);text-underline-offset:3px}#lp #lpmodal{position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.45);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) 24px max(16px,env(safe-area-inset-left))}#lp #lpmodal[hidden]{display:none}#lp .mbox{background:var(--lbg);border-radius:14px;padding:14px;width:100%;max-width:560px;display:grid;gap:10px;margin-top:24px}#lp .chips{display:flex;flex-wrap:wrap;gap:6px}#lp .chips button{border-radius:999px}#lp .chips button[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:var(--lbg)}#lp details.lg>summary{list-style:none;cursor:pointer}#lp details.lg>summary::-webkit-details-marker{display:none}#lp .tie{background:var(--card);border:1px solid var(--lln);border-top:0;border-radius:0 0 10px 10px;padding:8px 12px;font-size:14px;display:grid;gap:4px;margin-top:-4px}#lp .sum span{display:block}</style>
 <div id="lp" hidden><div id="lpmodal" hidden></div><div class="w"><div class="top"><h1>Live Props</h1><span><button id="lprf" type="button">Refresh</button> <button id="lpx" type="button">Close</button></span></div>
 <div class="asof" id="lpasof">Loading live stats</div><div class="err" id="lperr" hidden></div>
-<div id="lpminew" hidden><div class="sum" id="lpcombo"></div><h2>My legs, most exposure first</h2><div class="chips" id="lpchips"><button type="button" data-f="all">All</button><button type="button" data-f="td">ATTD</button><button type="button" data-f="prop">Player props</button><button type="button" data-f="game">Spreads</button></div><div class="list" id="lplegs"></div><h2>My Kalshi combos</h2><div class="list" id="lpmine"></div></div>
+<div id="lpminew" hidden><div class="sum" id="lpcombo"></div><h2>My legs, most exposure first</h2><div class="chips" id="lpchips"><button type="button" data-f="all">All</button><button type="button" data-f="td">ATTD</button><button type="button" data-f="prop">Player props</button><button type="button" data-f="game">Spreads</button><button type="button" data-o="1">On offense now</button></div><div class="list" id="lplegs"></div><h2>My Kalshi combos</h2><div class="list" id="lpmine"></div></div>
 <h2>Sharp Sheet props today</h2><div class="list" id="lpss"></div>
 <p class="note">Live ESPN box scores, refreshed by your browser every 30 seconds while open. Overs lock as hits the moment they clear; Unders settle at the final. Official grades post the next morning.</p></div></div>
 <script>(function(){
@@ -205,7 +205,7 @@ const SEED_COMBOS=[
 const STATMAP={"rush attempts":"rush_att","rushing yards":"rush_yds","receptions":"rec","receiving yards":"rec_yds","longest reception":"long_rec","pass attempts":"pass_att","passing yards":"pass_yds"};
 const UNIT={rush_att:"car",rush_yds:"yds",rec:"rec",rec_yds:"yds",long_rec:"long",pass_att:"att",pass_yds:"yds",td:"TD"};
 const $=id=>document.getElementById("lp"+id);
-let SHOWD=false, FILT="all", MODAL=null, LASTR={}; const OPEN=new Set(); let MY=null;try{MY=JSON.parse(localStorage.getItem("lpMy")||"null")}catch(e){}
+let SHOWD=false, ONOFF=false, FILT="all", MODAL=null, LASTR={}; const OPEN=new Set(); let MY=null;try{MY=JSON.parse(localStorage.getItem("lpMy")||"null")}catch(e){}
 if(location.hash==="#live-j"||(MY&&MY.v<SEEDV)){MY={v:SEEDV,legs:SEED_LEGS,combos:SEED_COMBOS};try{localStorage.setItem("lpMy",JSON.stringify(MY))}catch(e){}}
 try{localStorage.removeItem("lpMine")}catch(e){}
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -252,6 +252,7 @@ const ev=events.find(x=>x.id===id); box[id]={players:(j.boxscore&&j.boxscore.pla
 }
 function statOf(leg,e){
 const b=box[e.id]; if(!b) return null; const want=norm(leg.name);
+if(!leg._team){for(const t of b.players){if((t.statistics||[]).some(c=>(c.athletes||[]).some(a=>norm(a.athlete.displayName)===want))){leg._team=t.team&&t.team.abbreviation;break;}}}
 if(leg.stat==="td"){let td=0,found=false;
 for(const t of b.players){for(const c of t.statistics||[]){for(const a of c.athletes||[]){if(norm(a.athlete.displayName)!==want) continue; found=true;
 const key=c.name==="rushing"?"rushingTouchdowns":c.name==="receiving"?"receivingTouchdowns":null; if(!key) continue; const k=(c.keys||[]).indexOf(key); if(k>=0) td+=parseFloat(a.stats[k])||0;}}}
@@ -263,6 +264,7 @@ if(c.name!==cat[0]) continue; const k=(c.keys||[]).indexOf(cat[1]); if(k<0) cont
 let v=a.stats[k]; if(cat[1].includes("/")) v=String(v).split("/")[1]; return parseFloat(v)||0; }}}
 return 0;
 }
+function possOf(leg,e){if(e.status.type.state!=="in")return null;const comp=e.competitions[0],sit=comp.situation;if(!sit||!sit.possession)return null;const tm=leg.team||leg._team;if(!tm)return null;const pc=comp.competitors.find(c=>String(c.team.id)===String(sit.possession)||String(c.id)===String(sit.possession));if(!pc)return null;const ab=pc.team.abbreviation;const mine=ab===tm||(tm==="JAX"&&ab==="JAC");return {mine,ab,dd:sit.shortDownDistanceText||sit.downDistanceText||"",rz:!!sit.isRedZone};}
 function clockOf(e){const s=e.status.type;return s.state==="pre"?new Date(e.date).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",timeZone:"America/New_York"})+" ET":s.shortDetail;}
 function evalGame(leg,e){
 const s=e.status.type, comp=e.competitions[0], per=comp.status&&comp.status.period||e.status.period||0;
@@ -280,7 +282,7 @@ return {st,val:m,clock:clockOf(e),txt:`${leg.team} ${m>0?"+":""}${m} ${leg.per==
 function evaluate(leg){
 const e=eventFor(leg);
 if(!e) return {st:"pre",val:null,clock:"No game found",target:leg.side==="under"?leg.line:leg.need,pct:0,txt:""};
-if(leg.k==="game"){const r=evalGame(leg,e); return {...r,target:0,pct:r.st==="hit"?100:r.st==="live"?50:0};}
+if(leg.k==="game"){const r=evalGame(leg,e); return {...r,target:0,pct:r.st==="hit"?100:r.st==="live"?50:0,poss:possOf(leg,e)};}
 const s=e.status.type; let st="pre",val=null;
 if(s.state!=="pre"){val=statOf(leg,e); if(val==null) val=0;
 const over=leg.side!=="under"; const need=over?leg.need:leg.line;
@@ -289,7 +291,7 @@ else if(s.state==="post"){st=over?"dead":"hit";} else st="live";}
 const target=leg.side==="under"?leg.line:leg.need;
 const pct=val==null?0:Math.min(100,Math.round(100*val/Math.max(target,1)));
 let txt=""; if(st==="live") txt=leg.side==="under"?`${Math.max(0,leg.line-val)} of cushion`:`needs ${target-val} more`;
-return {st,val,clock:clockOf(e),target,pct,txt};
+return {st,val,clock:clockOf(e),target,pct,txt,poss:possOf(leg,e)};
 }
 const PILL={hit:["hit","Hit"],dead:["dead","Dead"],live:["live","Live"],pre:["pre","Upcoming"]};
 function rowHTML(leg,r){
@@ -297,7 +299,7 @@ const [pc,pt]=PILL[r.st];
 const name=leg.k==="game"?leg.label:leg.name;
 const right=leg.k==="game"?(r.val==null?"–":`${r.val>0?"+":""}${r.val}`):`${r.val==null?"–":r.val}<small> / ${leg.side==="under"?"u"+leg.line:r.target+"+"} ${UNIT[leg.stat]}</small>`;
 const sub=leg.k==="game"?(leg.per==="G"?"Full game":leg.per)+" margin":esc(leg.label)+(leg.pct?` · ${leg.pct}%`:"");
-return `<div class="rw ${r.st}"><div class="r1"><span class="nm">${esc(name)}</span><span class="val">${right}</span></div>
+return `<div class="rw ${r.st}"><div class="r1"><span class="nm">${esc(name)}${r.poss?` <span class="po ${r.poss.mine?(r.poss.rz?"rz":"on"):"off"}">${r.poss.mine?"Has ball":esc(r.poss.ab)+" ball"}${r.poss.mine&&r.poss.dd?" · "+esc(r.poss.dd):""}${r.poss.mine&&r.poss.rz?" · Red zone":""}</span>`:""}</span><span class="val">${right}</span></div>
 <div class="bar"><i style="width:${r.pct}%"></i></div>
 <div class="r3"><span>${sub}</span><span><span class="pl ${pc}">${pt}</span> ${esc(r.clock)}${r.txt?" · "+esc(r.txt):""}</span></div></div>`;
 }
@@ -314,13 +316,13 @@ $("combo").innerHTML=`<b>${alive} alive · ${won} won · ${lost} lost</b>`+(SHOW
 $("money").onclick=()=>{SHOWD=!SHOWD;render();};
 const ids=Object.keys(MY.legs).sort((a,b)=>((exp[b]&&exp[b].pays)||0)-((exp[a]&&exp[a].pays)||0)||(((exp[b]&&exp[b].n)||0)-((exp[a]&&exp[a].n)||0)));
 const cat=l=>l.k==="game"?"game":l.stat==="td"?"td":"prop";
-document.querySelectorAll("#lpchips button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.f===FILT));
-$("legs").innerHTML=ids.filter(id=>FILT==="all"||cat(MY.legs[id])===FILT).map(id=>{const e=exp[id]; const tag=e?(SHOWD?`${money(e.pays)} riding · ${e.n} live combo${e.n>1?"s":""}`:`${e.n} live combo${e.n>1?"s":""}`):"no live combos left";
+document.querySelectorAll("#lpchips button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.o?ONOFF:b.dataset.f===FILT));
+$("legs").innerHTML=ids.filter(id=>(FILT==="all"||cat(MY.legs[id])===FILT)&&(!ONOFF||(R[id].poss&&R[id].poss.mine))).map(id=>{const e=exp[id]; const tag=e?(SHOWD?`${money(e.pays)} riding · ${e.n} live combo${e.n>1?"s":""}`:`${e.n} live combo${e.n>1?"s":""}`):"no live combos left";
 const ties=MY.combos.map((c,i)=>({c,i})).filter(x=>x.c.legs.includes(id)); const tot=ties.reduce((a,x)=>a+x.c.cost,0), pay=ties.reduce((a,x)=>a+x.c.pays,0);
 const body=`<div class="tie"><b>Tied to ${ties.length} combo${ties.length>1?"s":""}: ${money(tot)} staked · ${money(pay)} payout${e?` · ${money(e.pays)} still live`:""}</b>${ties.map(x=>{const rs=x.c.legs.map(k=>R[k]); const d=rs.some(r=>r.st==="dead"), a=rs.every(r=>r.st==="hit"); return `<div class="cl" data-combo="${x.i}" role="button" tabindex="0">Combo ${x.i+1} (${x.c.legs.length} legs): ${money(x.c.cost)} → ${money(x.c.pays)} · ${d?"Lost":a?"Won":rs.filter(r=>r.st==="hit").length+" of "+rs.length+" hit"} ›</div>`;}).join("")}</div>`;
 return `<details class="lg" data-id="${id}"${OPEN.has(id)?" open":""}><summary>${rowHTML(MY.legs[id],R[id]).replace('<div class="r3">',`<div class="r3"><span class="ex">${tag} · tap for details</span></div><div class="r3">`)}</summary>${body}</details>`;}).join("")||'<div class="note">No legs in this filter.</div>';
 $("mine").innerHTML=cards.join(""); if(MODAL!=null) drawModal();}
-const ss=ssLegs.map(l=>rowHTML(l,evaluate(l))); $("ss").innerHTML=ss.length?ss.join(""):'<div class="note">No Sharp Sheet props found for today.</div>';
+const ss=ssLegs.map(l=>[l,evaluate(l)]).filter(x=>!ONOFF||(x[1].poss&&x[1].poss.mine)).map(x=>rowHTML(x[0],x[1])); $("ss").innerHTML=ss.length?ss.join(""):'<div class="note">No Sharp Sheet props found for today.</div>';
 $("asof").textContent="Updated "+new Date().toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",second:"2-digit",timeZone:"America/New_York"})+" ET · every 30 seconds";
 }
 async function tick(){
@@ -344,7 +346,7 @@ $("modal").innerHTML=`<div class="mbox" role="dialog" aria-modal="true"><div cla
 $("modal").hidden=false; $("mclose").onclick=()=>{MODAL=null;$("modal").hidden=true;};}
 document.getElementById("lp").addEventListener("click",ev=>{const el=ev.target.closest("[data-combo]"); if(el){ev.preventDefault();ev.stopPropagation();MODAL=+el.dataset.combo;drawModal();return;} if(ev.target.id==="lpmodal"){MODAL=null;$("modal").hidden=true;}},true);
 document.addEventListener("keydown",ev=>{if(ev.key==="Escape"&&MODAL!=null){MODAL=null;$("modal").hidden=true;}});
-$("chips").addEventListener("click",ev=>{const b=ev.target.closest("button");if(!b)return;FILT=b.dataset.f;render();});
+$("chips").addEventListener("click",ev=>{const b=ev.target.closest("button");if(!b)return;if(b.dataset.o){ONOFF=!ONOFF;}else FILT=b.dataset.f;render();});
 $("legs").addEventListener("toggle",ev=>{const d=ev.target;if(!d.dataset||!d.dataset.id)return;d.open?OPEN.add(d.dataset.id):OPEN.delete(d.dataset.id);},true);
 $("rf").onclick=()=>{tick();};
 boot();
