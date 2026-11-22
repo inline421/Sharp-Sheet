@@ -151,10 +151,10 @@ function g(t){return String(null==t?"":t).replace(/[&<>"]/g,function(t){return{"
 #lp .pl{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:5px;padding:2px 6px;background:var(--soft);color:var(--acc)}
 #lp .pl.hit{color:var(--hit)}#lp .pl.dead{color:var(--dead)}#lp .pl.live{color:var(--warn)}
 #lp .err{font-size:13px;border:1px solid var(--warn);border-radius:8px;padding:6px 9px}
-#lp details.cb{background:var(--card);border:1px solid var(--lln);border-radius:10px;padding:8px 10px;border-left:4px solid var(--warn)}#lp details.cb.hit{border-left-color:var(--hit)}#lp details.cb.dead{border-left-color:var(--dead);opacity:.75}#lp details.cb summary{display:flex;justify-content:space-between;gap:8px;cursor:pointer;list-style:none}#lp details.cb .list{margin-top:8px}#lp details.cb .rw{border-top:0;border-right:0;border-bottom:0}</style>
+#lp details.cb{background:var(--card);border:1px solid var(--lln);border-radius:10px;padding:8px 10px;border-left:4px solid var(--warn)}#lp details.cb.hit{border-left-color:var(--hit)}#lp details.cb.dead{border-left-color:var(--dead);opacity:.75}#lp details.cb summary{display:flex;justify-content:space-between;gap:8px;cursor:pointer;list-style:none}#lp details.cb .list{margin-top:8px}#lp details.cb .rw{border-top:0;border-right:0;border-bottom:0}#lp .ex{font-weight:700;color:var(--lfg)}#lp .sum span{display:block}</style>
 <div id="lp" hidden><div class="w"><div class="top"><h1>Live Props</h1><span><button id="lprf" type="button">Refresh</button> <button id="lpx" type="button">Close</button></span></div>
 <div class="asof" id="lpasof">Loading live stats</div><div class="err" id="lperr" hidden></div>
-<div id="lpminew" hidden><h2>My Kalshi combos</h2><div class="sum" id="lpcombo"></div><div class="list" id="lpmine"></div></div>
+<div id="lpminew" hidden><div class="sum" id="lpcombo"></div><h2>My legs, most exposure first</h2><div class="list" id="lplegs"></div><h2>My Kalshi combos</h2><div class="list" id="lpmine"></div></div>
 <h2>Sharp Sheet props today</h2><div class="list" id="lpss"></div>
 <p class="note">Live ESPN box scores, refreshed by your browser every 30 seconds while open. Overs lock as hits the moment they clear; Unders settle at the final. Official grades post the next morning.</p></div></div>
 <script>(function(){
@@ -205,7 +205,7 @@ const SEED_COMBOS=[
 const STATMAP={"rush attempts":"rush_att","rushing yards":"rush_yds","receptions":"rec","receiving yards":"rec_yds","longest reception":"long_rec","pass attempts":"pass_att","passing yards":"pass_yds"};
 const UNIT={rush_att:"car",rush_yds:"yds",rec:"rec",rec_yds:"yds",long_rec:"long",pass_att:"att",pass_yds:"yds",td:"TD"};
 const $=id=>document.getElementById("lp"+id);
-let MY=null;try{MY=JSON.parse(localStorage.getItem("lpMy")||"null")}catch(e){}
+let SHOWD=false; let MY=null;try{MY=JSON.parse(localStorage.getItem("lpMy")||"null")}catch(e){}
 if(location.hash==="#live-j"||(MY&&MY.v<SEEDV)){MY={v:SEEDV,legs:SEED_LEGS,combos:SEED_COMBOS};try{localStorage.setItem("lpMy",JSON.stringify(MY))}catch(e){}}
 try{localStorage.removeItem("lpMine")}catch(e){}
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -304,12 +304,16 @@ return `<div class="rw ${r.st}"><div class="r1"><span class="nm">${esc(name)}</s
 function render(){
 const has=MY&&MY.combos&&MY.combos.length; $("minew").hidden=!has;
 if(has){const R={}; for(const id in MY.legs) R[id]=evaluate(MY.legs[id]);
-let alive=0,won=0,lost=0,stake=0,live$=0,won$=0;
+let alive=0,won=0,lost=0,stake=0,live$=0,won$=0; const exp={};
 const cards=MY.combos.map((c,i)=>{const rs=c.legs.map(id=>R[id]); const dead=rs.some(r=>r.st==="dead"); const hit=rs.filter(r=>r.st==="hit").length; const all=hit===rs.length;
-stake+=c.cost; if(dead) lost++; else if(all){won++;won$+=c.pays;} else {alive++;live$+=c.pays;}
+stake+=c.cost; if(dead) lost++; else if(all){won++;won$+=c.pays;} else {alive++;live$+=c.pays; for(const id of c.legs){const e=exp[id]||(exp[id]={pays:0,cost:0,n:0}); e.pays+=c.pays; e.cost+=c.cost; e.n++;}}
 const cls=dead?"dead":all?"hit":"live";
-return `<details class="cb ${cls}"${dead?"":" open"}><summary><b>${money(c.cost)} → ${money(c.pays)}</b><span class="pl ${cls}">${dead?"Lost":all?"Won":hit+" of "+rs.length+" hit"}</span></summary><div class="list">${c.legs.map(id=>rowHTML(MY.legs[id],R[id])).join("")}</div></details>`;});
-$("combo").innerHTML=`<b>${alive} alive · ${won} won · ${lost} lost</b><span>${money(stake)} staked · ${money(live$)} still live · ${money(won$)} won</span>`;
+const head=SHOWD?`${money(c.cost)} → ${money(c.pays)}`:`Combo ${i+1} · ${rs.length} legs`;
+return `<details class="cb ${cls}"${dead?"":" open"}><summary><b>${head}</b><span class="pl ${cls}">${dead?"Lost":all?"Won":hit+" of "+rs.length+" hit"}</span></summary><div class="list">${c.legs.map(id=>rowHTML(MY.legs[id],R[id])).join("")}</div></details>`;});
+$("combo").innerHTML=`<b>${alive} alive · ${won} won · ${lost} lost</b>`+(SHOWD?`<span>${money(stake)} staked · ${money(live$)} still live · ${money(won$)} won</span>`:"")+`<span><button id="lpmoney" type="button">${SHOWD?"Hide $":"Show $"}</button></span>`;
+$("money").onclick=()=>{SHOWD=!SHOWD;render();};
+const ids=Object.keys(MY.legs).sort((a,b)=>((exp[b]&&exp[b].pays)||0)-((exp[a]&&exp[a].pays)||0)||(((exp[b]&&exp[b].n)||0)-((exp[a]&&exp[a].n)||0)));
+$("legs").innerHTML=ids.map(id=>{const e=exp[id]; const tag=e?(SHOWD?`${money(e.pays)} riding · ${e.n} live combo${e.n>1?"s":""}`:`${e.n} live combo${e.n>1?"s":""}`):"no live combos left"; return rowHTML(MY.legs[id],R[id]).replace('<div class="r3">',`<div class="r3"><span class="ex">${tag}</span></div><div class="r3">`);}).join("");
 $("mine").innerHTML=cards.join("");}
 const ss=ssLegs.map(l=>rowHTML(l,evaluate(l))); $("ss").innerHTML=ss.length?ss.join(""):'<div class="note">No Sharp Sheet props found for today.</div>';
 $("asof").textContent="Updated "+new Date().toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",second:"2-digit",timeZone:"America/New_York"})+" ET · every 30 seconds";
