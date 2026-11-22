@@ -243,11 +243,11 @@ const r=await fetch(ESPN+"scoreboard?dates="+todayET(),{cache:"no-store"}); cons
 }
 async function loadBoxes(legs){
 const need=new Set();
-for(const l of legs){if(l.k!=="prop") continue; const e=eventFor(l); if(!e) continue; const st=e.status.type.state; if(st==="pre") continue;
+for(const l of legs){const e=eventFor(l); if(!e) continue; const st=e.status.type.state; if(st==="pre") continue;
 if(st==="post"&&box[e.id]&&box[e.id].final) continue; need.add(e.id);}
 await Promise.all([...need].map(async id=>{
 try{const r=await fetch(ESPN+"summary?event="+id,{cache:"no-store"}); const j=await r.json();
-const ev=events.find(x=>x.id===id); box[id]={players:(j.boxscore&&j.boxscore.players)||[],final:ev&&ev.status.type.state==="post"};}catch(e){}
+const ev=events.find(x=>x.id===id); box[id]={players:(j.boxscore&&j.boxscore.players)||[],final:ev&&ev.status.type.state==="post",drive:(j.drives&&j.drives.current&&j.drives.current.team&&j.drives.current.team.abbreviation)||null};}catch(e){}
 }));
 }
 function statOf(leg,e){
@@ -264,7 +264,7 @@ if(c.name!==cat[0]) continue; const k=(c.keys||[]).indexOf(cat[1]); if(k<0) cont
 let v=a.stats[k]; if(cat[1].includes("/")) v=String(v).split("/")[1]; return parseFloat(v)||0; }}}
 return 0;
 }
-function possOf(leg,e){if(e.status.type.state!=="in")return null;const comp=e.competitions[0],sit=comp.situation;if(!sit||!sit.possession)return null;const tm=leg.team||leg._team;if(!tm)return null;const pc=comp.competitors.find(c=>String(c.team.id)===String(sit.possession)||String(c.id)===String(sit.possession));if(!pc)return null;const ab=pc.team.abbreviation;const mine=ab===tm||(tm==="JAX"&&ab==="JAC");return {mine,ab,dd:sit.shortDownDistanceText||sit.downDistanceText||"",rz:!!sit.isRedZone};}
+function possOf(leg,e){if(e.status.type.state!=="in")return null;const comp=e.competitions[0],sit=comp.situation||{};const tm=leg.team||leg._team;if(!tm)return null;const bx=box[e.id];let ab=bx&&bx.drive||null;const sp=sit.possession?comp.competitors.find(c=>String(c.team.id)===String(sit.possession)||String(c.id)===String(sit.possession)):null;const sab=sp&&sp.team.abbreviation;if(!ab)ab=sab;if(!ab)return null;const agree=sab===ab;const ym=String(sit.possessionText||"").match(/^([A-Z]{2,4})\s+(\d+)$/);const rz=agree&&!!ym&&ym[1]!==ab&&+ym[2]<=20;const mine=ab===tm||(tm==="JAX"&&ab==="JAC");return {mine,ab,dd:agree?(sit.shortDownDistanceText||sit.downDistanceText||""):"",rz};}
 function clockOf(e){const s=e.status.type;if(s.state==="pre")return new Date(e.date).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",timeZone:"America/New_York"})+" ET";const cs=e.competitions[0].competitors;const aw=cs.find(c=>c.homeAway==="away")||cs[0],hm=cs.find(c=>c.homeAway==="home")||cs[1];return `${aw.team.abbreviation} ${aw.score} – ${hm.team.abbreviation} ${hm.score} · ${s.shortDetail}`;}
 function evalGame(leg,e){
 const s=e.status.type, comp=e.competitions[0], per=comp.status&&comp.status.period||e.status.period||0;
