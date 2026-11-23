@@ -160,8 +160,27 @@ function g(t){return String(null==t?"":t).replace(/[&<>"]/g,function(t){return{"
 <script>(function(){
 const POLL=30000;
 const ESPN="https://site.api.espn.com/apis/site/v2/sports/football/nfl/";
-const SEEDV=3;
+const SEEDV=4;
 const SEED_LEGS={
+a1:{k:"prop",name:"Jayden Daniels",team:"WSH",opp:"CIN",stat:"pass_yds",need:175,label:"175+ pass yds"},
+a2:{k:"prop",name:"Stefon Diggs",team:"WSH",opp:"CIN",stat:"rec_yds",need:30,label:"30+ rec yds"},
+a3:{k:"prop",name:"Stefon Diggs",team:"WSH",opp:"CIN",stat:"rec_yds",need:25,label:"25+ rec yds"},
+a4:{k:"prop",name:"Chig Okonkwo",team:"WSH",opp:"CIN",stat:"rec_yds",need:20,label:"20+ rec yds"},
+a5:{k:"prop",name:"Chig Okonkwo",team:"WSH",opp:"CIN",stat:"rec_yds",need:25,label:"25+ rec yds"},
+a6:{k:"prop",name:"Tee Higgins",team:"CIN",opp:"WSH",stat:"rec",need:4,label:"4+ receptions"},
+a7:{k:"prop",name:"Ja'Marr Chase",team:"CIN",opp:"WSH",stat:"rec_yds",need:70,label:"70+ rec yds"},
+a8:{k:"prop",name:"Chase Brown",team:"CIN",opp:"WSH",stat:"rush_yds",need:25,label:"25+ rush yds"},
+a9:{k:"prop",name:"Chase Brown",team:"CIN",opp:"WSH",stat:"rush_yds",need:20,label:"20+ rush yds"}
+};
+const SEED_COMBOS=[
+{cost:999.84,pays:1808.31,legs:["a1","a2","a8"]},
+{cost:999.97,pays:1881.46,legs:["a6","a4","a2"]},
+{cost:999.99,pays:1913.87,legs:["a1","a6","a5"]},
+{cost:999.96,pays:1998,legs:["a1","a4","a2","a9"]},
+{cost:999.99,pays:1921.22,legs:["a7","a4","a8"]},
+{cost:999.90,pays:1836.54,legs:["a7","a3","a8"]}
+];
+const OLD_LEGS={
 p1:{k:"prop",name:"Justice Hill",team:"BAL",stat:"rec",need:2,label:"2+ receptions"},
 p2:{k:"prop",name:"Jordyn Tyson",team:"NO",stat:"rec",need:4,label:"4+ receptions"},
 p3:{k:"prop",name:"Ryan Flournoy",team:"DAL",stat:"rec_yds",need:20,label:"20+ rec yds"},
@@ -188,7 +207,7 @@ g9:{k:"game",team:"BUF",opp:"MIA",per:"G",op:"over",line:3.5,label:"Bills win by
 p9:{k:"prop",name:"Breece Hall",team:"NYJ",stat:"rec",need:2,label:"2+ receptions"},
 p10:{k:"prop",name:"Ashton Jeanty",team:"LV",stat:"rec",need:3,label:"3+ receptions"}
 };
-const SEED_COMBOS=[
+const OLD_COMBOS=[
 {cost:763.83,pays:1764.02,legs:["g1","g2"]},
 {cost:250.15,pays:1398.84,legs:["p1","p2","p3","p4","p5","p6","p7"]},
 {cost:1499.79,pays:3439.57,legs:["t1","t2"]},
@@ -320,11 +339,10 @@ const head=SHOWD?`${money(c.cost)} → ${money(c.pays)}`:`Combo ${i+1} · ${rs.l
 return `<details class="cb ${cls}"${dead?"":" open"}><summary><b class="cl" data-combo="${i}">${head} ›</b><span class="pl ${cls}">${dead?"Lost":all?"Won":hit+" of "+rs.length+" hit"}</span></summary><div class="list">${c.legs.map(id=>rowHTML(MY.legs[id],R[id])).join("")}</div></details>`;});
 $("combo").innerHTML=`<b>${alive} alive · ${won} won · ${lost} lost</b>`+(SHOWD?`<span>${money(stake)} staked · ${money(live$)} still live · ${money(won$)} won</span>`:"")+`<span><button id="lpmoney" type="button">${SHOWD?"Hide $":"Show $"}</button></span>`;
 $("money").onclick=()=>{SHOWD=!SHOWD;render();};
-const ids=Object.keys(MY.legs).sort((a,b)=>((exp[b]&&exp[b].pays)||0)-((exp[a]&&exp[a].pays)||0)||(((exp[b]&&exp[b].n)||0)-((exp[a]&&exp[a].n)||0)));
+const cnt=id=>MY.combos.filter(c=>c.legs.includes(id)).length; const ids=Object.keys(MY.legs).sort((a,b)=>cnt(b)-cnt(a)||((exp[b]&&exp[b].pays)||0)-((exp[a]&&exp[a].pays)||0));
 const cat=l=>l.k==="game"?"game":l.stat==="td"?"td":"prop";
 document.querySelectorAll("#lpchips button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.o?ONOFF:b.dataset.f===FILT));
-$("legs").innerHTML=ids.filter(id=>legMatch(MY.legs[id])&&gsOk(MY.legs[id])&&(FILT==="all"||cat(MY.legs[id])===FILT)&&(!ONOFF||(R[id].poss&&R[id].poss.mine))).map(id=>{const e=exp[id]; const tag=e?(SHOWD?`${money(e.pays)} riding · ${e.n} live combo${e.n>1?"s":""}`:`${e.n} live combo${e.n>1?"s":""}`):"no live combos left";
-const ties=MY.combos.map((c,i)=>({c,i})).filter(x=>x.c.legs.includes(id)); const tot=ties.reduce((a,x)=>a+x.c.cost,0), pay=ties.reduce((a,x)=>a+x.c.pays,0);
+$("legs").innerHTML=ids.filter(id=>legMatch(MY.legs[id])&&gsOk(MY.legs[id])&&(FILT==="all"||cat(MY.legs[id])===FILT)&&(!ONOFF||(R[id].poss&&R[id].poss.mine))).map(id=>{const e=exp[id]; const ties=MY.combos.map((c,i)=>({c,i})).filter(x=>x.c.legs.includes(id)); const shr=Math.round(100*ties.length/MY.combos.length); const tag=`In ${ties.length} of ${MY.combos.length} plays (${shr}%) · `+(e?(SHOWD?`${money(e.pays)} riding · ${e.n} live`:`${e.n} still live`):"none live"); const tot=ties.reduce((a,x)=>a+x.c.cost,0), pay=ties.reduce((a,x)=>a+x.c.pays,0);
 const body=`<div class="tie"><b>Tied to ${ties.length} combo${ties.length>1?"s":""}: ${money(tot)} staked · ${money(pay)} payout${e?` · ${money(e.pays)} still live`:""}</b>${ties.map(x=>{const rs=x.c.legs.map(k=>R[k]); const d=rs.some(r=>r.st==="dead"), a=rs.every(r=>r.st==="hit"); return `<div class="cl" data-combo="${x.i}" role="button" tabindex="0">Combo ${x.i+1} (${x.c.legs.length} legs): ${money(x.c.cost)} → ${money(x.c.pays)} · ${d?"Lost":a?"Won":rs.filter(r=>r.st==="hit").length+" of "+rs.length+" hit"} ›</div>`;}).join("")}</div>`;
 return `<details class="lg" data-id="${id}"${OPEN.has(id)?" open":""}><summary>${rowHTML(MY.legs[id],R[id]).replace('<div class="r3">',`<div class="r3"><span class="ex">${tag} · tap for details</span></div><div class="r3">`)}</summary>${body}</details>`;}).join("")||'<div class="note">No legs in this filter.</div>';
 const meta=MY.combos.map((c,i)=>{const rs=c.legs.map(id=>R[id]);const dead=rs.some(r=>r.st==="dead");const h=rs.filter(r=>r.st==="hit").length;return {i,st:dead?"lost":h===rs.length?"won":"alive",left:rs.length-h,frac:h/rs.length};});
