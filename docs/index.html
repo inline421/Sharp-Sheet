@@ -160,7 +160,7 @@ function g(t){return String(null==t?"":t).replace(/[&<>"]/g,function(t){return{"
 <script>(function(){
 const POLL=30000;
 const ESPN="https://site.api.espn.com/apis/site/v2/sports/football/nfl/";
-const SEEDV=4;
+const SEEDV=5;
 const SEED_LEGS={
 a1:{k:"prop",name:"Jayden Daniels",team:"WSH",opp:"CIN",stat:"pass_yds",need:175,label:"175+ pass yds"},
 a2:{k:"prop",name:"Stefon Diggs",team:"WSH",opp:"CIN",stat:"rec_yds",need:30,label:"30+ rec yds"},
@@ -170,7 +170,10 @@ a5:{k:"prop",name:"Chig Okonkwo",team:"WSH",opp:"CIN",stat:"rec_yds",need:25,lab
 a6:{k:"prop",name:"Tee Higgins",team:"CIN",opp:"WSH",stat:"rec",need:4,label:"4+ receptions"},
 a7:{k:"prop",name:"Ja'Marr Chase",team:"CIN",opp:"WSH",stat:"rec_yds",need:70,label:"70+ rec yds"},
 a8:{k:"prop",name:"Chase Brown",team:"CIN",opp:"WSH",stat:"rush_yds",need:25,label:"25+ rush yds"},
-a9:{k:"prop",name:"Chase Brown",team:"CIN",opp:"WSH",stat:"rush_yds",need:20,label:"20+ rush yds"}
+a9:{k:"prop",name:"Chase Brown",team:"CIN",opp:"WSH",stat:"rush_yds",need:20,label:"20+ rush yds"},
+a10:{k:"prop",name:"Antonio Williams",team:"WSH",opp:"CIN",stat:"rec_yds",need:40,label:"40+ rec yds"},
+a11:{k:"game",team:"CIN",opp:"WSH",per:"G",op:"notover",line:14.5,label:"No: Bengals win by 15+"},
+a12:{k:"game",team:"CIN",opp:"WSH",per:"G",op:"tunder",line:55.5,label:"Under 55.5 total pts"}
 };
 const SEED_COMBOS=[
 {cost:999.84,pays:1808.31,legs:["a1","a2","a8"]},
@@ -178,7 +181,9 @@ const SEED_COMBOS=[
 {cost:999.99,pays:1913.87,legs:["a1","a6","a5"]},
 {cost:999.96,pays:1998,legs:["a1","a4","a2","a9"]},
 {cost:999.99,pays:1921.22,legs:["a7","a4","a8"]},
-{cost:999.90,pays:1836.54,legs:["a7","a3","a8"]}
+{cost:999.90,pays:1836.54,legs:["a7","a3","a8"]},
+{cost:1499.92,pays:2676.65,legs:["a10","a11","a12"]},
+{cost:1176.92,pays:2181.64,legs:["a7","a11","a12"]}
 ];
 const OLD_LEGS={
 p1:{k:"prop",name:"Justice Hill",team:"BAL",stat:"rec",need:2,label:"2+ receptions"},
@@ -297,12 +302,12 @@ if(!me||!op) return {st:"pre",val:null,clock:clockOf(e),txt:""};
 if(s.state==="pre") return {st:"pre",val:null,clock:clockOf(e),txt:""};
 const q=c=>(c.linescores||[]).map(x=>parseFloat(x.value)||0);
 const pts=(c)=>leg.per==="1Q"?(q(c)[0]||0):leg.per==="1H"?((q(c)[0]||0)+(q(c)[1]||0)):(parseFloat(c.score)||0);
-const m=pts(me)-pts(op);
+const TOT=leg.op==="tunder"||leg.op==="tover", OV=leg.op==="over"||leg.op==="tover"; const m=TOT?pts(me)+pts(op):pts(me)-pts(op);
 const done=s.state==="post"||(leg.per==="1Q"&&per>=2)||(leg.per==="1H"&&(per>=3||s.name==="STATUS_HALFTIME"));
-const ok=leg.op==="over"?m>leg.line:m<=leg.line;
+const ok=OV?m>leg.line:(TOT?m<leg.line:m<=leg.line);
 const st=done?(ok?"hit":"dead"):"live";
-const cov=Math.round((leg.op==="over"?m-leg.line:leg.line-m)*10)/10;
-return {st,val:cov,clock:clockOf(e),txt:`${leg.team} ${m>0?"+":""}${m}${leg.per==="G"?"":" "+leg.per}`+(st==="live"?(cov>0?` · covering by ${cov}`:` · needs ${Math.abs(cov)} more`):"")};
+const cov=Math.round((OV?m-leg.line:leg.line-m)*10)/10;
+return {st,val:cov,clock:clockOf(e),txt:(TOT?`Total ${m}`:`${leg.team} ${m>0?"+":""}${m}`)+`${leg.per==="G"?"":" "+leg.per}`+(st==="live"?(cov>0?` · covering by ${cov}`:` · needs ${Math.abs(cov)} more`):"")};
 }
 function evaluate(leg){
 const e=eventFor(leg);
